@@ -147,7 +147,7 @@ DESKTOP_PACKAGES=(
     "firefox" "dolphin" "bluez" "bluez-utils"
     "pipewire" "wireplumber" "pipewire-pulse" "tlp"
     "brightnessctl" "waybar" "papirus-icon-theme" "gtk3"
-    "qt6ct" "qt6-qpa-platformtheme-gnome" "archlinux-wallpaper"
+    "qt6ct" "qgnomeplatform-qt6" "archlinux-wallpaper" # <-- CORREÇÃO APLICADA AQUI
     "hyprpaper" "grim" "slurp" "cliphist" "wl-clipboard" "gammastep"
 )
 
