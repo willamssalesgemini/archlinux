@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # SCRIPT DE INSTALAÇÃO AUTOCONTIDO E PROFISSIONAL - ARCH LINUX + HYPRLAND
-# Versão 15.1 (Final - Correção de Caminho do Disco)
+# Versão 15.2 (Final - Correção de Nomenclatura de Partições SATA/NVMe)
 #
 
 # --- [ 1. CONFIGURAÇÕES E MODO DE SEGURANÇA ] ---
@@ -68,7 +68,6 @@ clear
 # ETAPA 4: COLETA DE DADOS - PARTE 2 (HARDWARE)
 log_step "(Etapa 4/7) Coletando informações de Hardware"
 dialog_options=()
-# --- [ CORREÇÃO APLICADA AQUI: Adicionado '-p' para obter o caminho completo ] ---
 while IFS= read -r line; do
     DEVICE=$(echo "$line" | awk '{print $1}'); SIZE=$(echo "$line" | awk '{print $2}'); MODEL=$(echo "$line" | awk '{$1=$2=""; print $0}' | sed 's/^[ \t]*//')
     DISK_TYPE="SATA/USB"; if [[ "$DEVICE" == /dev/nvme* ]]; then DISK_TYPE="NVMe SSD"; fi
@@ -103,18 +102,26 @@ clear
 log_step "(Etapa 6/7) Executando a instalação no disco"
 echo "--> Particionando o disco $SSD (Modo $BOOT_MODE)..."
 sgdisk -Z "$SSD"
+
+# --- [ CORREÇÃO APLICADA AQUI: Lógica de prefixo para partições ] ---
+PART_PREFIX=""
+if [[ "$SSD" == /dev/nvme* ]]; then
+    PART_PREFIX="p"
+fi
+
 if [ "$BOOT_MODE" == "UEFI" ]; then
     if [[ "$SEPARATE_HOME" == "s" ]]; then sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:+$ROOT_SIZE -t=3:8300 -n=4:0:0 -t=4:8300 "$SSD"; else sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:0 -t=3:8300 "$SSD"; fi
-    EFI_PART="${SSD}p1"; SWAP_PART="${SSD}p2"; ROOT_PART="${SSD}p3"; [[ "$SEPARATE_HOME" == "s" ]] && HOME_PART="${SSD}p4" # Adicionado 'p' para compatibilidade com NVMe
+    EFI_PART="${SSD}${PART_PREFIX}1"; SWAP_PART="${SSD}${PART_PREFIX}2"; ROOT_PART="${SSD}${PART_PREFIX}3"; [[ "$SEPARATE_HOME" == "s" ]] && HOME_PART="${SSD}${PART_PREFIX}4"
     echo "--> Formatando e montando partições..."; mkfs.fat -F 32 "$EFI_PART"; mkswap "$SWAP_PART"; mkfs.ext4 "$ROOT_PART"
     mount "$ROOT_PART" /mnt; swapon "$SWAP_PART"; mkdir -p /mnt/boot; mount "$EFI_PART" /mnt/boot
 else
     if [[ "$SEPARATE_HOME" == "s" ]]; then sgdisk -n=1:0:+1M -t=1:ef02 -n=2:0:+17G -t=2:8200 -n=3:0:+$ROOT_SIZE -t=3:8300 -n=4:0:0 -t=4:8300 "$SSD"; else sgdisk -n=1:0:+1M -t=1:ef02 -n=2:0:+17G -t=2:8200 -n=3:0:0 -t=3:8300 "$SSD"; fi
-    SWAP_PART="${SSD}2"; ROOT_PART="${SSD}3"; [[ "$SEPARATE_HOME" == "s" ]] && HOME_PART="${SSD}4" # Discos MBR/BIOS usam números diretamente
+    SWAP_PART="${SSD}${PART_PREFIX}2"; ROOT_PART="${SSD}${PART_PREFIX}3"; [[ "$SEPARATE_HOME" == "s" ]] && HOME_PART="${SSD}${PART_PREFIX}4"
     echo "--> Formatando e montando partições..."; mkswap "$SWAP_PART"; mkfs.ext4 "$ROOT_PART"
     mount "$ROOT_PART" /mnt; swapon "$SWAP_PART"
 fi
 if [[ "$SEPARATE_HOME" == "s" ]]; then mkfs.ext4 "$HOME_PART"; mkdir -p /mnt/home; mount "$HOME_PART" /mnt/home; fi
+
 GFX_PACKAGES=(); if [ "$GPU_CHOICE" == "NVIDIA" ]; then GFX_PACKAGES=("nvidia-dkms" "nvidia-utils" "lib32-nvidia-utils"); else GFX_PACKAGES=("mesa" "lib32-mesa"); fi
 BASE_PACKAGES=("base" "linux" "linux-firmware" "intel-ucode" "micro" "networkmanager" "iwd" "sudo" "udisks2"); if [ "$BOOT_MODE" == "UEFI" ]; then BASE_PACKAGES+=("efibootmgr"); fi
 DESKTOP_PACKAGES=("hyprland" "xorg-xwayland" "kitty" "rofi" "dunst" "sddm" "sddm-kcm" "polkit-kde-agent" "firefox" "dolphin" "bluez" "bluez-utils" "pipewire" "wireplumber" "pipewire-pulse" "tlp" "brightnessctl" "waybar" "papirus-icon-theme" "gtk3" "qt6ct" "qgnomeplatform-qt6" "archlinux-wallpaper" "hyprpaper" "grim" "slurp" "cliphist" "wl-clipboard" "gammastep")
