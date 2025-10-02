@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # SCRIPT DE INSTALAÇÃO AUTOCONTIDO E PROFISSIONAL - ARCH LINUX + HYPRLAND
-# Versão 15.3 (Final - Remoção de Pacote Não Essencial para Contornar Problema de Mirror)
+# Versão 17.0 (Final - Modular com Script de Pós-Instalação)
 #
 
 # --- [ 1. CONFIGURAÇÕES E MODO DE SEGURANÇA ] ---
@@ -30,13 +30,16 @@ log_step "(Etapa 1/7) Preparando o ambiente de instalação"
 echo "--> Verificando conexão com a internet..."
 if ! ping -c 1 archlinux.org &> /dev/null; then echo "ERRO: Sem internet."; exit 1; fi
 echo "✔ Internet OK."
-echo "--> Ativando o repositório Multilib e sincronizando..."
+echo "--> Ativando o repositório Multilib..."
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
-pacman -Sy --noconfirm archlinux-keyring
-echo "--> Instalando dependências para o script..."
-pacman -S --noconfirm --needed dialog reflector
 echo "--> Otimizando servidores de download (mirrors)..."
+pacman -S --noconfirm --needed reflector
 reflector --country Brazil --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+echo "✔ Mirrors otimizados."
+echo "--> Sincronizando banco de dados de pacotes..."
+pacman -Syy
+echo "--> Instalando dependências para o script..."
+pacman -S --noconfirm --needed dialog archlinux-keyring
 
 # ETAPA 2: DETECÇÃO DO MODO DE BOOT
 log_step "(Etapa 2/7) Detectando modo de boot"
@@ -116,14 +119,73 @@ else
     mount "$ROOT_PART" /mnt; swapon "$SWAP_PART"
 fi
 if [[ "$SEPARATE_HOME" == "s" ]]; then mkfs.ext4 "$HOME_PART"; mkdir -p /mnt/home; mount "$HOME_PART" /mnt/home; fi
+
 GFX_PACKAGES=(); if [ "$GPU_CHOICE" == "NVIDIA" ]; then GFX_PACKAGES=("nvidia-dkms" "nvidia-utils" "lib32-nvidia-utils"); else GFX_PACKAGES=("mesa" "lib32-mesa"); fi
-BASE_PACKAGES=("base" "linux" "linux-firmware" "intel-ucode" "micro" "networkmanager" "iwd" "sudo" "udisks2"); if [ "$BOOT_MODE" == "UEFI" ]; then BASE_PACKAGES+=("efibootmgr"); fi
-# --- [ CORREÇÃO APLICADA AQUI: Pacote problemático removido ] ---
+BASE_PACKAGES=("base" "linux" "linux-firmware" "intel-ucode" "micro" "networkmanager" "dhcpcd" "iwd" "sudo" "udisks2"); if [ "$BOOT_MODE" == "UEFI" ]; then BASE_PACKAGES+=("efibootmgr"); fi
 DESKTOP_PACKAGES=("hyprland" "xorg-xwayland" "kitty" "rofi" "dunst" "sddm" "sddm-kcm" "polkit-kde-agent" "firefox" "dolphin" "bluez" "bluez-utils" "pipewire" "wireplumber" "pipewire-pulse" "tlp" "brightnessctl" "waybar" "papirus-icon-theme" "gtk3" "qt6ct" "archlinux-wallpaper" "hyprpaper" "grim" "slurp" "cliphist" "wl-clipboard" "gammastep")
 EXTRA_PACKAGES=($EXTRA_PACKAGES_STRING)
 echo "--> Instalando TODOS os pacotes com pacstrap..."; pacstrap -K /mnt "${BASE_PACKAGES[@]}" "${GFX_PACKAGES[@]}" "${DESKTOP_PACKAGES[@]}" "${EXTRA_PACKAGES[@]}"; genfstab -U /mnt >> /mnt/etc/fstab
-GRUB_INSTALL_COMMAND=""; if [ "$BOOT_MODE" == "UEFI" ]; then GRUB_INSTALL_COMMAND="grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=ARCH"; else GRUB_INSTALL_COMMAND="grub-install --target=i368-pc $SSD"; fi
-arch-chroot /mnt /bin/bash -c "set -e; ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime; hwclock --systohc; sed -i 's/^#$LOCALE/$LOCALE/' /etc/locale.gen; locale-gen; echo 'LANG=$LOCALE' > /etc/locale.conf; echo 'KEYMAP=$KEYMAP' > /etc/vconsole.conf; echo '$HOSTNAME' > /etc/hostname; systemctl enable NetworkManager iwd sddm bluetooth tlp; echo 'root:$SENHA_ROOT' | chpasswd; useradd -m -G wheel -s /bin/bash $USUARIO; echo '$USUARIO:$SENHA_USUARIO' | chpasswd; if [ '$USER_IS_SUDOER' == 'yes' ]; then sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers; fi; pacman -S --noconfirm grub; $GRUB_INSTALL_COMMAND; grub-mkconfig -o /boot/grub/grub.cfg;"
+
+# [MELHORIA] Lógica de pós-instalação separada em um script gerado dinamicamente.
+log_step "Gerando script de pós-instalação"
+cat << EOF > /mnt/post-install.sh
+#!/bin/bash
+set -e
+
+# Configurações de Fuso Horário, Localização e Teclado
+ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+hwclock --systohc
+sed -i 's/^#$LOCALE/$LOCALE/' /etc/locale.gen
+locale-gen
+echo 'LANG=$LOCALE' > /etc/locale.conf
+echo 'KEYMAP=$KEYMAP' > /etc/vconsole.conf
+
+# Configuração de Rede
+echo '$HOSTNAME' > /etc/hostname
+echo "127.0.0.1 localhost" >> /etc/hosts
+echo "::1       localhost" >> /etc/hosts
+echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >> /etc/hosts
+
+# Senhas de Root e Usuário
+echo 'root:$SENHA_ROOT' | chpasswd
+useradd -m -G wheel -s /bin/bash $USUARIO
+echo '$USUARIO:$SENHA_USUARIO' | chpasswd
+if [ '$USER_IS_SUDOER' == 'yes' ]; then
+    sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+fi
+
+# Instalação do Bootloader (GRUB)
+pacman -S --noconfirm grub
+if [ "$BOOT_MODE" == "UEFI" ]; then
+    grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=ARCH
+else
+    grub-install --target=i386-pc $SSD
+fi
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# Verificação de Sanidade do NetworkManager
+echo '--> Verificando a instalação do NetworkManager...'
+if ! pacman -Q networkmanager &> /dev/null; then
+    echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+    echo 'ATENÇÃO: A instalação do NetworkManager pode ter falhado!'
+    echo 'Após reiniciar, se não tiver internet, abra um terminal e rode:'
+    echo 'sudo pacman -S networkmanager'
+    echo 'sudo systemctl enable --now NetworkManager'
+    echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+    echo 'Pressione Enter para continuar...'
+    read
+else
+    echo '✔ NetworkManager instalado corretamente.'
+    systemctl enable NetworkManager
+fi
+
+# Habilitando outros serviços
+systemctl enable iwd sddm bluetooth tlp
+EOF
+
+log_step "Executando script de pós-instalação"
+chmod +x /mnt/post-install.sh
+arch-chroot /mnt /post-install.sh
 
 # ETAPA 7: FINALIZAÇÃO
 log_step "(Etapa 7/7) Finalizando a instalação"
