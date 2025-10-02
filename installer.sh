@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # SCRIPT DE INSTALAÇÃO AUTOCONTIDO E PROFISSIONAL - ARCH LINUX + HYPRLAND
-# Versão 15.2 (Final - Correção de Nomenclatura de Partições SATA/NVMe)
+# Versão 15.3 (Final - Remoção de Pacote Não Essencial para Contornar Problema de Mirror)
 #
 
 # --- [ 1. CONFIGURAÇÕES E MODO DE SEGURANÇA ] ---
@@ -102,13 +102,8 @@ clear
 log_step "(Etapa 6/7) Executando a instalação no disco"
 echo "--> Particionando o disco $SSD (Modo $BOOT_MODE)..."
 sgdisk -Z "$SSD"
-
-# --- [ CORREÇÃO APLICADA AQUI: Lógica de prefixo para partições ] ---
 PART_PREFIX=""
-if [[ "$SSD" == /dev/nvme* ]]; then
-    PART_PREFIX="p"
-fi
-
+if [[ "$SSD" == /dev/nvme* ]]; then PART_PREFIX="p"; fi
 if [ "$BOOT_MODE" == "UEFI" ]; then
     if [[ "$SEPARATE_HOME" == "s" ]]; then sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:+$ROOT_SIZE -t=3:8300 -n=4:0:0 -t=4:8300 "$SSD"; else sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:0 -t=3:8300 "$SSD"; fi
     EFI_PART="${SSD}${PART_PREFIX}1"; SWAP_PART="${SSD}${PART_PREFIX}2"; ROOT_PART="${SSD}${PART_PREFIX}3"; [[ "$SEPARATE_HOME" == "s" ]] && HOME_PART="${SSD}${PART_PREFIX}4"
@@ -121,13 +116,13 @@ else
     mount "$ROOT_PART" /mnt; swapon "$SWAP_PART"
 fi
 if [[ "$SEPARATE_HOME" == "s" ]]; then mkfs.ext4 "$HOME_PART"; mkdir -p /mnt/home; mount "$HOME_PART" /mnt/home; fi
-
 GFX_PACKAGES=(); if [ "$GPU_CHOICE" == "NVIDIA" ]; then GFX_PACKAGES=("nvidia-dkms" "nvidia-utils" "lib32-nvidia-utils"); else GFX_PACKAGES=("mesa" "lib32-mesa"); fi
 BASE_PACKAGES=("base" "linux" "linux-firmware" "intel-ucode" "micro" "networkmanager" "iwd" "sudo" "udisks2"); if [ "$BOOT_MODE" == "UEFI" ]; then BASE_PACKAGES+=("efibootmgr"); fi
-DESKTOP_PACKAGES=("hyprland" "xorg-xwayland" "kitty" "rofi" "dunst" "sddm" "sddm-kcm" "polkit-kde-agent" "firefox" "dolphin" "bluez" "bluez-utils" "pipewire" "wireplumber" "pipewire-pulse" "tlp" "brightnessctl" "waybar" "papirus-icon-theme" "gtk3" "qt6ct" "qgnomeplatform-qt6" "archlinux-wallpaper" "hyprpaper" "grim" "slurp" "cliphist" "wl-clipboard" "gammastep")
+# --- [ CORREÇÃO APLICADA AQUI: Pacote problemático removido ] ---
+DESKTOP_PACKAGES=("hyprland" "xorg-xwayland" "kitty" "rofi" "dunst" "sddm" "sddm-kcm" "polkit-kde-agent" "firefox" "dolphin" "bluez" "bluez-utils" "pipewire" "wireplumber" "pipewire-pulse" "tlp" "brightnessctl" "waybar" "papirus-icon-theme" "gtk3" "qt6ct" "archlinux-wallpaper" "hyprpaper" "grim" "slurp" "cliphist" "wl-clipboard" "gammastep")
 EXTRA_PACKAGES=($EXTRA_PACKAGES_STRING)
 echo "--> Instalando TODOS os pacotes com pacstrap..."; pacstrap -K /mnt "${BASE_PACKAGES[@]}" "${GFX_PACKAGES[@]}" "${DESKTOP_PACKAGES[@]}" "${EXTRA_PACKAGES[@]}"; genfstab -U /mnt >> /mnt/etc/fstab
-GRUB_INSTALL_COMMAND=""; if [ "$BOOT_MODE" == "UEFI" ]; then GRUB_INSTALL_COMMAND="grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=ARCH"; else GRUB_INSTALL_COMMAND="grub-install --target=i386-pc $SSD"; fi
+GRUB_INSTALL_COMMAND=""; if [ "$BOOT_MODE" == "UEFI" ]; then GRUB_INSTALL_COMMAND="grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=ARCH"; else GRUB_INSTALL_COMMAND="grub-install --target=i368-pc $SSD"; fi
 arch-chroot /mnt /bin/bash -c "set -e; ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime; hwclock --systohc; sed -i 's/^#$LOCALE/$LOCALE/' /etc/locale.gen; locale-gen; echo 'LANG=$LOCALE' > /etc/locale.conf; echo 'KEYMAP=$KEYMAP' > /etc/vconsole.conf; echo '$HOSTNAME' > /etc/hostname; systemctl enable NetworkManager iwd sddm bluetooth tlp; echo 'root:$SENHA_ROOT' | chpasswd; useradd -m -G wheel -s /bin/bash $USUARIO; echo '$USUARIO:$SENHA_USUARIO' | chpasswd; if [ '$USER_IS_SUDOER' == 'yes' ]; then sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers; fi; pacman -S --noconfirm grub; $GRUB_INSTALL_COMMAND; grub-mkconfig -o /boot/grub/grub.cfg;"
 
 # ETAPA 7: FINALIZAÇÃO
