@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # SCRIPT DE INSTALAÇÃO AUTOCONTIDO E PROFISSIONAL - ARCH LINUX + HYPRLAND
-# Versão 11.0 (Pacotes Corrigidos, Preparação Automatizada)
+# Versão 12.0 (Correção de Bugs e Boas Práticas Aplicadas)
 #
 
 # --- [ 1. CONFIGURAÇÕES E MODO DE SEGURANÇA ] ---
@@ -21,7 +21,7 @@ function log_step {
 
 # --- [ 4. EXECUÇÃO PRINCIPAL ] ---
 
-# ETAPA 1: PREPARAÇÃO DO AMBIENTE LIVE (AGORA AUTOMATIZADO)
+# ETAPA 1: PREPARAÇÃO DO AMBIENTE LIVE (AUTOMATIZADO E CORRIGIDO)
 clear
 echo "====================================================="
 echo "  Instalador Definitivo Arch Linux + Hyprland"
@@ -35,101 +35,21 @@ if ! ping -c 1 archlinux.org &> /dev/null; then
 fi
 echo "✔ Internet OK."
 
-echo "--> Otimizando servidores de download (mirrors)..."
-pacman -S --noconfirm --needed reflector &> /dev/null
-reflector --country Brazil --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-
 echo "--> Ativando o repositório Multilib..."
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 
 echo "--> Sincronizando banco de dados e atualizando chaves..."
 pacman -Sy --noconfirm archlinux-keyring
 
-echo "--> Instalando dependências para o script (dialog)..."
-pacman -S --noconfirm --needed dialog
-
-# ETAPA 2: COLETA DE DADOS COM O USUÁRIO
-log_step "(Etapa 2/5) Coletando informações para a instalação"
-# (Esta seção permanece a mesma, robusta e interativa com 'dialog')
-HOSTNAME=$(dialog --clear --backtitle "Configuração do Sistema" --inputbox "Digite um nome para o seu computador (hostname):" 10 40 2>&1 >/dev/tty)
-[[ -z "$HOSTNAME" ]] && { echo "Hostname não pode ser vazio."; exit 1; }
-USUARIO=$(dialog --clear --backtitle "Configuração do Sistema" --inputbox "Digite um nome para seu usuário (sem maiúsculas):" 10 40 2>&1 >/dev/tty)
-[[ -z "$USUARIO" ]] && { echo "Usuário não pode ser vazio."; exit 1; }
-# ... (coleta de senhas, sudo, GPU, disco, etc. - o código completo está abaixo)
-# O código completo da coleta de dados foi omitido aqui para brevidade, mas está no script final.
-
-# ETAPA 3: INSTALAÇÃO NO DISCO
-log_step "(Etapa 3/5) Executando a instalação no disco"
-# (Esta seção permanece a mesma)
-
-# ETAPA 4: CONFIGURAÇÃO VIA CHROOT
-log_step "(Etapa 4/5) Configurando o novo sistema"
-# (Esta seção permanece a mesma)
-
-# ETAPA 5: FINALIZAÇÃO
-log_step "(Etapa 5/5) Finalizando a instalação"
-# (Esta seção permanece a mesma)
-
-# --- SCRIPT COMPLETO ABAIXO ---
-
-# Ocultando a prévia e mostrando o script final completo
-# ...
-# Este é o script completo que você deve copiar.
-
-#!/bin/bash
-#
-# SCRIPT DE INSTALAÇÃO AUTOCONTIDO E PROFISSIONAL - ARCH LINUX + HYPRLAND
-# Versão 11.0 (Pacotes Corrigidos, Preparação Automatizada)
-#
-
-# --- [ 1. CONFIGURAÇÕES E MODO DE SEGURANÇA ] ---
-set -eo pipefail # Encerra o script imediatamente se qualquer comando falhar.
-
-# --- [ 2. VARIÁVEIS GLOBAIS E CONSTANTES ] ---
-TIMEZONE="America/Recife"
-KEYMAP="br-abnt2"
-LOCALE="pt_BR.UTF-8"
-
-# --- [ 3. FUNÇÕES ] ---
-function log_step {
-    echo "....................................................."
-    echo ">>> $1"
-    echo "....................................................."
-}
-
-# --- [ 4. EXECUÇÃO PRINCIPAL ] ---
-
-# ETAPA 1: PREPARAÇÃO DO AMBIENTE LIVE (AUTOMATIZADO)
-clear
-echo "====================================================="
-echo "  Instalador Definitivo Arch Linux + Hyprland"
-echo "====================================================="
-log_step "(Etapa 1/5) Preparando o ambiente de instalação"
-
-echo "--> Verificando conexão com a internet..."
-if ! ping -c 1 archlinux.org &> /dev/null; then
-    echo "ERRO: Não há conexão com a internet. Por favor, conecte-se com 'iwctl' e execute o script novamente."
-    exit 1
-fi
-echo "✔ Internet OK."
+echo "--> Instalando dependências para o script (dialog, reflector)..."
+pacman -S --noconfirm --needed dialog reflector
 
 echo "--> Otimizando servidores de download (mirrors)..."
-pacman -S --noconfirm --needed reflector &> /dev/null
 reflector --country Brazil --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-
-echo "--> Ativando o repositório Multilib..."
-sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
-
-echo "--> Sincronizando banco de dados e atualizando chaves..."
-pacman -Sy --noconfirm archlinux-keyring
-
-echo "--> Instalando dependências para o script (dialog)..."
-pacman -S --noconfirm --needed dialog
-
 
 # ETAPA 2: COLETA DE DADOS COM O USUÁRIO
 log_step "(Etapa 2/5) Coletando informações para a instalação"
-
+# (Esta seção não precisou de mudanças, já estava excelente)
 HOSTNAME=$(dialog --clear --backtitle "Configuração do Sistema" --inputbox "Digite um nome para o seu computador (hostname):" 10 40 2>&1 >/dev/tty)
 [[ -z "$HOSTNAME" ]] && { echo "Hostname não pode ser vazio."; exit 1; }
 USUARIO=$(dialog --clear --backtitle "Configuração do Sistema" --inputbox "Digite um nome para seu usuário (sem maiúsculas):" 10 40 2>&1 >/dev/tty)
@@ -164,48 +84,120 @@ else
     SEPARATE_HOME="n"
 fi
 clear
-EXTRA_PACKAGES=""
+EXTRA_PACKAGES_STRING=""
 DEV_PACKAGES=$(dialog --clear --backtitle "Seleção de Software" --checklist "Ferramentas de Desenvolvimento" 20 70 15 "git" "" on "code" "" on 2>&1 >/dev/tty)
 MEDIA_PACKAGES=$(dialog --clear --backtitle "Seleção de Software" --checklist "Softwares de Mídia" 20 70 15 "vlc" "" on "gimp" "" off "inkscape" "" off 2>&1 >/dev/tty)
-EXTRA_PACKAGES="$(echo $DEV_PACKAGES $MEDIA_PACKAGES | tr -d '"')"
+EXTRA_PACKAGES_STRING="$(echo $DEV_PACKAGES $MEDIA_PACKAGES | tr -d '"')"
 clear
 dialog --clear --backtitle "Confirmação Final" --yesno "A instalação começará em '$SSD' para '$USUARIO'.\nTODOS os dados serão apagados.\n\nDeseja continuar?" 10 60
 response=$?
 if [ $response -ne 0 ]; then echo "Instalação cancelada."; exit; fi
 clear
 
-# ETAPA 3: INSTALAÇÃO NO DISCO
+# ETAPA 3: INSTALAÇÃO NO DISCO (COM VARIÁVEIS DE PARTIÇÃO)
 log_step "(Etapa 3/5) Executando a instalação no disco"
 echo "--> Particionando o disco $SSD..."
-sgdisk -Z $SSD
+sgdisk -Z "$SSD"
 if [[ "$SEPARATE_HOME" == "s" ]]; then
-    sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:+$ROOT_SIZE -t=3:8300 -n=4:0:0 -t=4:8300 $SSD
+    sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:+$ROOT_SIZE -t=3:8300 -n=4:0:0 -t=4:8300 "$SSD"
 else
-    sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:0 -t=3:8300 $SSD
+    sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:0 -t=3:8300 "$SSD"
 fi
-echo "--> Formatando e montando partições..."
-mkfs.fat -F 32 ${SSD}1; mkswap ${SSD}2; mkfs.ext4 ${SSD}3
-mount ${SSD}3 /mnt; swapon ${SSD}2; mkdir -p /mnt/boot; mount ${SSD}1 /mnt/boot
-if [[ "$SEPARATE_HOME" == "s" ]]; then mkfs.ext4 ${SSD}4; mkdir -p /mnt/home; mount ${SSD}4 /mnt/home; fi
 
-# Construção da lista de pacotes
-GFX_PACKAGES=""; if [ "$GPU_CHOICE" == "NVIDIA" ]; then GFX_PACKAGES="nvidia-dkms nvidia-utils lib32-nvidia-utils"; else GFX_PACKAGES="mesa lib32-mesa"; fi
-BASE_PACKAGES="base linux linux-firmware intel-ucode micro networkmanager iwd sudo udisks2"
-DESKTOP_PACKAGES="hyprland xorg-xwayland kitty rofi dunst sddm sddm-kcm polkit-kde-agent firefox dolphin bluez bluez-utils pipewire wireplumber pipewire-pulse tlp brightnessctl waybar papirus-icon-theme gtk3 qt6ct qt6-qpa-platformtheme-gnome archlinux-wallpaper hyprpaper grim slurp cliphist wl-clipboard gammastep"
+# Definindo variáveis para as partições para maior clareza
+EFI_PART="${SSD}1"
+SWAP_PART="${SSD}2"
+ROOT_PART="${SSD}3"
+
+echo "--> Formatando e montando partições..."
+mkfs.fat -F 32 "$EFI_PART"
+mkswap "$SWAP_PART"
+mkfs.ext4 "$ROOT_PART"
+
+mount "$ROOT_PART" /mnt
+swapon "$SWAP_PART"
+mkdir -p /mnt/boot
+mount "$EFI_PART" /mnt/boot
+
+if [[ "$SEPARATE_HOME" == "s" ]]; then
+    HOME_PART="${SSD}4"
+    mkfs.ext4 "$HOME_PART"
+    mkdir -p /mnt/home
+    mount "$HOME_PART" /mnt/home
+fi
+
+# --- [ MELHORIA APLICADA: ARRAYS PARA PACOTES ] ---
+# Construção da lista de pacotes com Arrays
+GFX_PACKAGES=()
+if [ "$GPU_CHOICE" == "NVIDIA" ]; then
+    GFX_PACKAGES=("nvidia-dkms" "nvidia-utils" "lib32-nvidia-utils")
+else
+    GFX_PACKAGES=("mesa" "lib32-mesa")
+fi
+
+BASE_PACKAGES=(
+    "base" "linux" "linux-firmware"
+    "intel-ucode" "micro" "networkmanager"
+    "iwd" "sudo" "udisks2"
+)
+
+DESKTOP_PACKAGES=(
+    "hyprland" "xorg-xwayland" "kitty" "rofi"
+    "dunst" "sddm" "sddm-kcm" "polkit-kde-agent"
+    "firefox" "dolphin" "bluez" "bluez-utils"
+    "pipewire" "wireplumber" "pipewire-pulse" "tlp"
+    "brightnessctl" "waybar" "papirus-icon-theme" "gtk3"
+    "qt6ct" "qt6-qpa-platformtheme-gnome" "archlinux-wallpaper"
+    "hyprpaper" "grim" "slurp" "cliphist" "wl-clipboard" "gammastep"
+)
+
+# Transforma a string de pacotes extras em um array
+EXTRA_PACKAGES=($EXTRA_PACKAGES_STRING)
 
 echo "--> Instalando TODOS os pacotes com pacstrap (pode levar vários minutos)..."
-pacstrap -K /mnt $BASE_PACKAGES $GFX_PACKAGES $DESKTOP_PACKAGES $EXTRA_PACKAGES
+pacstrap -K /mnt "${BASE_PACKAGES[@]}" "${GFX_PACKAGES[@]}" "${DESKTOP_PACKAGES[@]}" "${EXTRA_PACKAGES[@]}"
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # ETAPA 4: CONFIGURAÇÃO VIA CHROOT
 log_step "(Etapa 4/5) Configurando o novo sistema"
-cat << EOF > /mnt/chroot-script.sh
-#!/bin/bash
+# (Esta parte será executada dentro do sistema instalado)
+# Adapte o script de chroot para usar as variáveis que coletamos
+arch-chroot /mnt /bin/bash -c "
+# Ativando modo de segurança dentro do chroot
 set -e
-# (O conteúdo do chroot-script.sh é o mesmo da v10.0, já era robusto)
-# ...
-EOF
-arch-chroot /mnt /bin/bash /chroot-script.sh
+
+# Configurações de Localização e Hora
+ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+hwclock --systohc
+echo '$LOCALE UTF-8' > /etc/locale.gen
+locale-gen
+echo 'LANG=$LOCALE' > /etc/locale.conf
+echo 'KEYMAP=$KEYMAP' > /etc/vconsole.conf
+
+# Configurações de Rede
+echo '$HOSTNAME' > /etc/hostname
+systemctl enable NetworkManager
+systemctl enable iwd
+systemctl enable sddm
+systemctl enable bluetooth
+systemctl enable tlp
+
+# Senhas de Root e Usuário
+echo 'root:$SENHA_ROOT' | chpasswd
+useradd -m -G wheel -s /bin/bash $USUARIO
+echo '$USUARIO:$SENHA_USUARIO' | chpasswd
+
+# Privilégios de Administrador (Sudo)
+if [ '$USER_IS_SUDOER' == 'yes' ]; then
+    echo '%wheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
+fi
+
+# Instalação do Bootloader (GRUB)
+pacman -S --noconfirm grub efibootmgr
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=ARCH
+grub-mkconfig -o /boot/grub/grub.cfg
+
+"
 
 # ETAPA 5: FINALIZAÇÃO
 log_step "(Etapa 5/5) Finalizando a instalação"
@@ -214,7 +206,6 @@ clear
 echo "====================================================="
 echo "          Instalação Concluída!"
 echo "====================================================="
-echo "TAREFA FINAL: Após reiniciar, logue e rode './setup.sh'"
-echo "Pressione [Enter] para reiniciar."
+echo "Pressione [Enter] para reiniciar o sistema."
 read
 reboot
