@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # SCRIPT DE INSTALAÇÃO AUTOCONTIDO E PROFISSIONAL - ARCH LINUX + HYPRLAND
-# Versão 15.0 (Final - Lógica de 'umount' aprimorada)
+# Versão 15.1 (Final - Correção de Caminho do Disco)
 #
 
 # --- [ 1. CONFIGURAÇÕES E MODO DE SEGURANÇA ] ---
@@ -68,12 +68,13 @@ clear
 # ETAPA 4: COLETA DE DADOS - PARTE 2 (HARDWARE)
 log_step "(Etapa 4/7) Coletando informações de Hardware"
 dialog_options=()
+# --- [ CORREÇÃO APLICADA AQUI: Adicionado '-p' para obter o caminho completo ] ---
 while IFS= read -r line; do
     DEVICE=$(echo "$line" | awk '{print $1}'); SIZE=$(echo "$line" | awk '{print $2}'); MODEL=$(echo "$line" | awk '{$1=$2=""; print $0}' | sed 's/^[ \t]*//')
     DISK_TYPE="SATA/USB"; if [[ "$DEVICE" == /dev/nvme* ]]; then DISK_TYPE="NVMe SSD"; fi
     status="off"; [[ ${#dialog_options[@]} -eq 0 ]] && status="on"
     dialog_options+=("$DEVICE" "[$DISK_TYPE] ${SIZE} - ${MODEL}" "$status")
-done < <(lsblk -d -n -o NAME,SIZE,MODEL --exclude 7,11)
+done < <(lsblk -p -d -n -o NAME,SIZE,MODEL --exclude 7,11)
 SSD=$(dialog --clear --backtitle "Seleção de Disco de Destino" --radiolist "Use ESPAÇO para selecionar o disco onde o Arch Linux será instalado.\n\nATENÇÃO: TODOS os dados do disco selecionado serão APAGADOS." 20 78 15 "${dialog_options[@]}" 2>&1 >/dev/tty)
 [[ -z "$SSD" ]] && { echo "Seleção de disco cancelada."; exit 1; }
 clear
@@ -104,12 +105,12 @@ echo "--> Particionando o disco $SSD (Modo $BOOT_MODE)..."
 sgdisk -Z "$SSD"
 if [ "$BOOT_MODE" == "UEFI" ]; then
     if [[ "$SEPARATE_HOME" == "s" ]]; then sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:+$ROOT_SIZE -t=3:8300 -n=4:0:0 -t=4:8300 "$SSD"; else sgdisk -n=1:0:+512M -t=1:ef00 -n=2:0:+17G -t=2:8200 -n=3:0:0 -t=3:8300 "$SSD"; fi
-    EFI_PART="${SSD}1"; SWAP_PART="${SSD}2"; ROOT_PART="${SSD}3"; [[ "$SEPARATE_HOME" == "s" ]] && HOME_PART="${SSD}4"
+    EFI_PART="${SSD}p1"; SWAP_PART="${SSD}p2"; ROOT_PART="${SSD}p3"; [[ "$SEPARATE_HOME" == "s" ]] && HOME_PART="${SSD}p4" # Adicionado 'p' para compatibilidade com NVMe
     echo "--> Formatando e montando partições..."; mkfs.fat -F 32 "$EFI_PART"; mkswap "$SWAP_PART"; mkfs.ext4 "$ROOT_PART"
     mount "$ROOT_PART" /mnt; swapon "$SWAP_PART"; mkdir -p /mnt/boot; mount "$EFI_PART" /mnt/boot
 else
     if [[ "$SEPARATE_HOME" == "s" ]]; then sgdisk -n=1:0:+1M -t=1:ef02 -n=2:0:+17G -t=2:8200 -n=3:0:+$ROOT_SIZE -t=3:8300 -n=4:0:0 -t=4:8300 "$SSD"; else sgdisk -n=1:0:+1M -t=1:ef02 -n=2:0:+17G -t=2:8200 -n=3:0:0 -t=3:8300 "$SSD"; fi
-    SWAP_PART="${SSD}2"; ROOT_PART="${SSD}3"; [[ "$SEPARATE_HOME" == "s" ]] && HOME_PART="${SSD}4"
+    SWAP_PART="${SSD}2"; ROOT_PART="${SSD}3"; [[ "$SEPARATE_HOME" == "s" ]] && HOME_PART="${SSD}4" # Discos MBR/BIOS usam números diretamente
     echo "--> Formatando e montando partições..."; mkswap "$SWAP_PART"; mkfs.ext4 "$ROOT_PART"
     mount "$ROOT_PART" /mnt; swapon "$SWAP_PART"
 fi
