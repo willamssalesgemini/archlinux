@@ -3,1186 +3,1180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guia: Arch Linux Portátil com archinstall</title>
-    <!-- Carregando o Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Adicionando Font Awesome para ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Guia Arch Linux Portátil com archinstall (Minimal + Hyprland)</title>
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> 
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Usando a fonte Inter */
+        :root {
+            --background-start: #1a1a2a;
+            --background-end: #0f0f1a;
+            --card-background: rgba(30, 30, 45, 0.7);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --text-primary: #E0E0E0;
+            --text-secondary: #B0B0C0;
+            --accent-blue: #61afef; /* Azul claro */
+            --accent-yellow: #e5c07b; /* Amarelo */
+            --accent-red: #e06c75; /* Vermelho claro */
+            --code-background: #282c34; /* Fundo do código */
+            --code-text: #abb2bf; /* Texto do código */
+            --step-circle-bg: rgba(97, 175, 239, 0.3); /* Fundo círculo do passo */
+            --step-circle-border: var(--accent-blue);
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            /* NOVO FUNDO - Estilo Hyprland */
-            background: linear-gradient(135deg, #0a0a1a, #1a0a2a, #0a0a1a);
-            background-attachment: fixed; /* Para o gradiente não rolar */
-            color: #e5e7eb; /* Define a cor do texto padrão como clara */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-start);
+            background-image: linear-gradient(145deg, var(--background-start) 0%, var(--background-end) 100%);
+            color: var(--text-primary);
+            line-height: 1.7;
         }
 
-        /* --- ESTILOS DO NOVO LAYOUT --- */
-
-        /* Estilos para o botão copiar */
-        .copy-btn {
-            background-color: #4a5568; /* gray-700 */
-            color: #e2e8f0; /* gray-300 */
-            border: none;
-            border-radius: 0.25rem;
-            padding: 0.25rem 0.5rem;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            z-index: 10;
-        }
-        .copy-btn:hover {
-            background-color: #1a202c; /* Mais escuro no hover */
-        }
-        .dark .copy-btn {
-            background-color: #2d3748;
-            color: #cbd5e0;
-        }
-        .dark .copy-btn:hover {
-            background-color: #1a202c;
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: transparent; /* Container principal transparente */
+            padding: 0;
         }
 
-        /* Lista de passos numerados */
-        .step-list {
-            counter-reset: step-counter;
+        h1, h2 {
+            color: #FFFFFF;
+            border-bottom: 2px solid var(--accent-blue);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h1 i, h2 i {
+            color: var(--accent-blue);
+        }
+
+        h3 {
+            color: #FFFFFF;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .points-list {
             list-style: none;
-            padding-left: 0;
-        }
-        .step-list > li {
-            counter-increment: step-counter;
-            position: relative;
-            padding-left: 3.5rem; /* Espaço para o número */
-            padding-top: 0.25rem;
-            padding-bottom: 1.5rem; /* space-y-6 */
-        }
-        /* Linha vertical de conexão */
-        .step-list > li:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            left: 1rem;
-            top: 2.75rem;
-            bottom: -1.5rem;
-            width: 2px;
-            background-color: #374151; /* gray-700 */
-        }
-        .dark .step-list > li:not(:last-child)::after {
-            background-color: #374151; /* gray-700 */
+            padding: 0;
+            margin-bottom: 30px;
         }
 
-        /* Círculo com o número */
-        .step-list > li::before {
-            content: counter(step-counter);
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 2.25rem;
-            height: 2.25rem;
-            line-height: 2.25rem;
+        .points-list li {
+            background-color: var(--card-background);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(10px) saturate(150%);
+            -webkit-backdrop-filter: blur(10px) saturate(150%);
+        }
+
+        .points-list i {
+            color: var(--accent-yellow);
+            font-size: 1.2em;
+            width: 25px;
             text-align: center;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start; /* Alinha círculo com o topo do cartão */
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background-color: #3b82f6; /* blue-600 */
-            color: white;
-            font-weight: 600;
-            z-index: 5;
+            background-color: var(--step-circle-bg);
+            border: 2px solid var(--step-circle-border);
+            color: #FFFFFF;
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1em;
+            margin-top: 5px; /* Ajuste para alinhar com o texto do cartão */
         }
-        
-        /* Conteúdo do passo - O EFEITO DE VIDRO! */
+
         .step-content {
-            /* EFEITO DE VIDRO */
-            background: rgba(31, 41, 55, 0.25); /* gray-800 com 25% alpha */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px); /* Suporte para Safari */
-            border: 1px solid rgba(255, 255, 255, 0.1); /* Borda de vidro sutil */
-            
-            border-radius: 0.75rem; /* Um pouco mais redondo */
-            padding: 1.25rem;
-            transition: all 0.2s;
-        }
-        .dark .step-content {
-            /* Estilos dark removidos, pois agora são o padrão */
+            flex-grow: 1;
+            background-color: var(--card-background);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+             backdrop-filter: blur(10px) saturate(150%);
+            -webkit-backdrop-filter: blur(10px) saturate(150%);
         }
 
-        /* Destaque para passos importantes */
-        .step-list > li.important::before {
-            background-color: #f59e0b; /* yellow-500 */
-        }
-        .step-list > li.important .step-content {
-            background: rgba(245, 158, 11, 0.15); /* Fundo de vidro amarelado */
-            border-color: rgba(245, 158, 11, 0.3); /* Borda de vidro amarelada */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        .dark .step-list > li.important .step-content {
-            /* removido */
-        }
-        .dark .step-list > li.important .step-title {
-            color: #fde047; /* yellow-300 */
-        }
-        .dark .step-list > li.important .step-desc {
-            color: #fef3c7; /* yellow-100 */
-        }
-
-        /* Dica especial */
-        .step-list > li.tip::before {
-            background-color: #10b981; /* emerald-500 */
-            content: '\f0eb'; /* ícone de lâmpada */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-        }
-        .step-list > li.tip .step-content {
-            background: rgba(16, 185, 129, 0.15); /* Fundo de vidro esverdeado */
-            border-color: rgba(16, 185, 129, 0.3); /* Borda de vidro esverdeada */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        .dark .step-list > li.tip .step-content {
-            /* removido */
-        }
-        .dark .step-list > li.tip .step-title {
-            color: #6ee7b7; /* emerald-300 */
-        }
-        .dark .step-list > li.tip .step-desc {
-            color: #d1fae5; /* emerald-100 */
+        .step-content strong {
+            color: #FFFFFF;
+            font-weight: 600;
         }
         
-        /* Dica Essencial (nova) */
-        .step-list > li.essential::before {
-            background-color: #ef4444; /* red-500 */
-            content: '\f071'; /* ícone de exclamação */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-        }
-        .step-list > li.essential .step-content {
-            background: rgba(239, 68, 68, 0.15); /* Fundo de vidro avermelhado */
-            border-color: rgba(239, 68, 68, 0.3); /* Borda de vidro avermelhada */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        .dark .step-list > li.essential .step-content {
-            /* removido */
-        }
-        .dark .step-list > li.essential .step-title {
-            color: #f87171; /* red-300 */
-        }
-        .dark .step-list > li.essential .step-desc {
-            color: #fee2e2; /* red-100 */
+        .step-content i.inline-icon {
+            color: var(--accent-blue);
+            margin-right: 5px;
         }
 
-        /* --- ESTILOS DE IMPRESSÃO (PDF) --- */
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert.important {
+            background-color: rgba(229, 192, 123, 0.1); /* Amarelo */
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+
+        .alert.tip {
+            background-color: rgba(97, 175, 239, 0.1); /* Azul */
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        .alert.danger {
+            background-color: rgba(224, 108, 117, 0.1); /* Vermelho */
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .alert i {
+            font-size: 1.3em;
+        }
+
+        code {
+            background-color: rgba(0,0,0,0.3);
+            color: var(--accent-yellow);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background-color: var(--code-background);
+            color: var(--code-text);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            border: none;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            opacity: 0.7;
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+        .copy-button:hover {
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .copy-button i {
+            margin-right: 5px;
+        }
+        
+        ul {
+           margin-left: 20px; 
+           padding-left: 10px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .program-list {
+            columns: 2; /* Divide a lista em duas colunas */
+            -webkit-columns: 2;
+            -moz-columns: 2;
+            column-gap: 40px;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .program-list li {
+            break-inside: avoid-column; /* Evita que itens quebrem entre colunas */
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        
+        .program-list strong {
+            display: block;
+            color: #FFFFFF;
+        }
+        .program-list .category {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+            margin-top: 25px;
+             column-span: all; /* Faz o título ocupar todas as colunas */
+            -webkit-column-span: all;
+             border-bottom: 1px solid var(--accent-blue);
+             padding-bottom: 5px;
+        }
+        .program-list .category:first-of-type {
+            margin-top: 0;
+        }
+
+
+        /* Estilos para Impressão (PDF) */
         @media print {
             body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                background-color: #ffffff;
-                font-size: 10pt;
+                background-color: #ffffff; /* Fundo branco para economizar tinta */
+                background-image: none;
+                color: #000000; /* Texto preto */
+                padding: 10px; /* Reduz padding */
+                font-size: 10pt; /* Tamanho de fonte menor */
             }
-            .max-w-4xl {
+
+            .container {
                 max-width: 100%;
-                box-shadow: none;
                 margin: 0;
-                padding: 0;
+                box-shadow: none;
             }
-            h1 { font-size: 24pt; }
-            h2 { font-size: 18pt; }
-            h3 { font-size: 14pt; }
+
+            h1, h2, h3 {
+                color: #000000;
+                border-bottom-color: #cccccc;
+            }
+            h1 i, h2 i {
+                color: #555555;
+            }
+
+            .points-list li, .step-content {
+                background-color: #f9f9f9; /* Fundo cinza claro */
+                border-color: #dddddd;
+                box-shadow: none;
+                 backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+             .step-number {
+                background-color: #eeeeee;
+                border-color: #aaaaaa;
+                color: #000000;
+            }
+
+            .alert {
+                background-color: #eeeeee;
+                border: 1px dashed #aaaaaa;
+                color: #333333;
+            }
+            .alert.important, .alert.tip, .alert.danger {
+                color: #333333; /* Remove cores específicas */
+                 border-color: #aaaaaa;
+            }
+            .alert i {
+                color: #555555;
+            }
+
+            code {
+                background-color: #f0f0f0;
+                color: #333333;
+            }
+
+            pre {
+                background-color: #f5f5f5;
+                color: #000000;
+                border: 1px solid #dddddd;
+            }
             
-            /* Força modo claro */
-            .dark, .dark body, .dark .bg-gray-900, .dark .bg-gray-800 {
-                background-color: #ffffff !important;
-                color: #000000 !important;
+            .copy-button {
+                display: none; /* Esconde botões de copiar */
             }
-            .dark .text-gray-100, .dark .text-gray-200, .dark .text-gray-300, .dark .text-gray-400 {
-                color: #111827 !important;
-            }
-            .step-content, .dark .step-content {
-                background: #f9fafb !important;
-                border-color: #e5e7eb !important;
-            }
-            .step-list > li.important .step-content, .dark .step-list > li.important .step-content {
-                background: #fffbeb !important;
-                border-color: #fde68a !important;
-            }
-            .step-list > li.tip .step-content, .dark .step-list > li.tip .step-content {
-                background: #f0fdfa !impor !important;
-                border-color: #a7f3d0 !important;
-                backdrop-filter: none !important; /* Desativa o blur na impressão */
-            }
-            .step-list > li.essential .step-content, .dark .step-list > li.essential .step-content {
-                background: #fef2f2 !important;
-                border-color: #fecaca !important;
-                backdrop-filter: none !important; /* Desativa o blur na impressão */
-            }
-            .dark .text-yellow-300, .dark .text-yellow-200 { color: #b45309 !important; }
-            .dark .text-blue-400 { color: #2563eb !important; }
-            .dark .text-emerald-300, .dark .text-emerald-100 { color: #065f46 !important; }
             
-            /* Code blocks */
-            pre, .bg-gray-900, .dark .bg-gray-950 {
-                background-color: #f3f4f6 !important;
-                border: 1px solid #d1d5db;
-                padding-top: 0.5rem !important; /* Remove espaço do botão */
+             .program-list {
+                 columns: 1; /* Uma coluna para impressão */
+                -webkit-columns: 1;
+                -moz-columns: 1;
             }
-            code, .text-green-300 { color: #059669 !important; }
-            .text-gray-400 { color: #4b5563 !important; }
-            
-            /* Ocultar botões */
-            .copy-btn {
-                display: none;
+             .program-list li {
+                 border-bottom-color: #ddd;
+             }
+             .program-list strong, .program-list .category {
+                 color: #000;
+             }
+             .program-list .category {
+                 border-bottom-color: #ccc;
+             }
+
+            /* Evita quebras de página ruins */
+            .step, .points-list li, pre, .program-list li {
+                page-break-inside: avoid;
             }
-            /* Garantir que a linha da timeline apareça */
-            .step-list > li:not(:last-child)::after {
-                background-color: #e5e7eb !important;
+            h2, h3, .program-list .category {
+                 page-break-after: avoid;
+                 page-break-before: auto;
             }
-            /* Garantir que os círculos apareçam */
-            .step-list > li::before {
-                color: white !important;
-            }
-            .step-list > li.important::before { background-color: #f59e0b !important; }
-            .step-list > li.tip::before { background-color: #10b981 !important; }
-            .step-list > li.essential::before { background-color: #ef4444 !important; }
-            .step-list > li::before { background-color: #3b82f6 !important; }
         }
     </style>
 </head>
-<body class="antialiased"> <!-- Classes de cor e bg removidas, agora no CSS -->
+<body>
+    <div class="container">
+        <h1><i class="fas fa-feather-alt"></i>Guia: Arch Linux Portátil (Minimal + Hyprland)</h1>
 
-    <div class="max-w-4xl mx-auto p-6 md:p-10 bg-transparent my-10"> <!-- Fundo branco e sombra removidos -->
+        <p>Este guia detalha como usar o <code>archinstall</code> para criar uma instalação mínima e portátil do Arch Linux em um pendrive ou SSD externo, focando em compatibilidade e longevidade, e como configurar o Hyprland manualmente após a instalação base.</p>
 
-        <h1 class="text-3xl md:text-4xl font-bold mb-6 text-blue-400 border-b pb-4 border-gray-600"> <!-- Cor e borda atualizadas -->
-            <i class="fa-brands fa-linux mr-3"></i>
-            Guia: Arch Linux Portátil com <code>archinstall</code> (Minimal)
-        </h1>
-
-        <p class="text-lg leading-relaxed mb-6">
-            Este guia detalha como usar o <code>archinstall</code> para criar uma instalação portátil e **mínima** do Arch Linux. O objetivo é instalar apenas o sistema base e, <strong>após a reinicialização</strong>, instalar manualmente o ambiente gráfico de sua escolha.
-        </p>
-
-        <h2 class="text-2xl font-semibold mt-8 mb-4 text-gray-200"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-key mr-3 text-gray-500"></i>
-            Pontos-Chave da Instalação Portátil
-        </h2>
-
-        <p class="text-lg leading-relaxed mb-4">
-            Vamos focar em quatro pontos cruciais para garantir a portabilidade e a longevidade do dispositivo:
-        </p>
-
-        <ul class="list-disc pl-6 mb-6 space-y-3 text-lg">
-            <li>
-                <i class="fa-solid fa-desktop mr-2 text-blue-400 w-6"></i> <!-- Cor atualizada -->
-                <strong>Drivers Gráficos:</strong> Instalaremos todos os drivers open-source (Intel, AMD, Nouveau) para que o sistema funcione em qualquer hardware gráfico.
-            </li>
-            <li>
-                <i class="fa-solid fa-microchip mr-2 text-blue-400 w-6"></i> <!-- Cor atualizada -->
-                <strong>Drivers de Kernel:</strong> O kernel será configurado para carregar todos os drivers de disco (SATA, NVMe, USB), e não apenas os da máquina usada para a instalação.
-            </li>
-            <li>
-                <i class="fa-solid fa-memory mr-2 text-blue-400 w-6"></i> <!-- Cor atualizada -->
-                <strong>Desgaste (Swap):</strong> Não usaremos uma partição de swap tradicional. Em vez disso, usaremos <strong>zram</strong> (um swap compactado na RAM), que o <code>archinstall</code> suporta.
-            </li>
-            <li>
-                <i class="fa-solid fa-hard-drive mr-2 text-blue-400 w-6"></i> <!-- Cor atualizada -->
-                <strong>Desgaste (Filesystem):</strong> Usaremos <strong>btrfs</strong> com a opção <code>noatime</code> para reduzir drasticamente as escritas desnecessárias no disco.
-            </li>
+        <h2><i class="fas fa-key"></i>Pontos-Chave para Portabilidade</h2>
+        <ul class="points-list">
+            <li><i class="fas fa-cogs"></i><strong>Drivers Gráficos Universais:</strong> Instalação de todos os drivers open-source (<code>mesa</code> para Intel/AMD/Nouveau) para funcionar em diferentes máquinas.</li>
+            <li><i class="fas fa-hdd"></i><strong>Kernel Universal:</strong> Remoção do hook <code>autodetect</code> para que o kernel carregue todos os drivers de disco (SATA, NVMe, USB) durante o boot.</li>
+            <li><i class="fas fa-memory"></i><strong>Swap Otimizado (zram):</strong> Uso de <code>zram</code> (swap comprimido na RAM) em vez de uma partição swap no disco, evitando desgaste.</li>
+            <li><i class="fas fa-shield-alt"></i><strong>Filesystem Otimizado (btrfs + noatime):</strong> Uso de <code>btrfs</code> com a opção <code>noatime</code> para reduzir drasticamente as escritas no pendrive/SSD.</li>
         </ul>
 
-        <h2 class="text-2xl font-semibold mt-10 mb-6 text-gray-200"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-list-check mr-3 text-gray-500"></i>
-            Guia de Instalação Passo a Passo
-        </h2>
-
-        <h3 class="text-xl font-medium mt-6 mb-3 text-gray-300"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-box-open mr-2"></i>
-            Preparação
-        </h3>
-
-        <p class="text-lg leading-relaxed mb-4">
-            Você vai precisar de <strong>dois pendrives</strong>:
-        </p>
-        <ul class="list-disc pl-6 mb-6 space-y-2 text-lg">
-            <li><i class="fa-solid fa-compact-disc mr-2 w-6"></i>Um com a <strong>ISO do Arch</strong> (instalador).</li>
-            <li><i class="fa-solid fa-usb-drive mr-2 w-6"></i>Outro onde o <strong>sistema será instalado</strong> (destino).</li>
+        <h2><i class="fas fa-toolbox"></i>O Que Você Vai Precisar</h2>
+        <ul class="points-list">
+            <li><i class="fas fa-usb"></i><strong>Pendrive Instalador:</strong> Um pendrive com a ISO mais recente do Arch Linux.</li>
+            <li><i class="fas fa-database"></i><strong>Pendrive/SSD Destino:</strong> Onde o Arch Linux será instalado (será formatado!).</li>
+            <li><i class="fas fa-wifi"></i><strong>Conexão com a Internet:</strong> Necessária durante a instalação.</li>
+            <li><i class="fas fa-keyboard"></i><strong>Paciência e Atenção:</strong> Siga os passos cuidadosamente!</li>
         </ul>
 
-        <h3 class="text-xl font-medium mt-6 mb-3 text-gray-300"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-play mr-2"></i>
-            Iniciando o <code>archinstall</code>
-        </h3>
+        <h2><i class="fas fa-tasks"></i>Guia de Instalação com <code>archinstall</code></h2>
 
-        <ol class="list-decimal pl-6 mb-6 space-y-3 text-lg">
-            <li>Dê boot no seu PC com a ISO do Arch (pendrive instalador).</li>
-            
-            <li class="space-y-2">
-                <span>Conecte-se à internet. Se estiver usando WiFi, o <code>iwctl</code> é o modo mais fácil:</span>
-                <div class="relative bg-gray-900 dark:bg-gray-950 p-4 rounded-md overflow-x-auto my-2 text-sm">
-                    <button class="copy-btn" data-clipboard-target="#cmd-iwctl" title="Copiar Bloco">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-iwctl" class="font-mono text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"><i class="fa-solid fa-keyboard mr-2"></i># 1. Inicie o utilitário</span>
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-power-off"></i>Inicialização e Internet</strong>
+                <p>Dê boot no seu PC usando o <strong>Pendrive Instalador</strong> (ISO do Arch). Aguarde carregar até o prompt de comando (<code>root@archiso ~ #</code>).</p>
+                <p>Conecte-se à internet. O método mais comum é via Wi-Fi usando <code>iwctl</code>:</p>
+                <pre><code class="language-bash"># Entra no utilitário iwctl
 iwctl
 
-<span class="text-gray-400 block mt-2 mb-2"><i class="fa-solid fa-list mr-2"></i># 2. Liste suas redes (anote o NOME-DA-REDE)</span>
-station wlan0 get-networks
+# Lista suas placas de rede Wi-Fi (ex: wlan0)
+[iwctl]# device list 
 
-<span class="text-gray-400 block mt-2 mb-2"><i class="fa-solid fa-tower-broadcast mr-2"></i># 3. Conecte-se (substitua com seus dados)</span>
-station wlan0 connect "NOME-DA-REDE"
-<span class="text-gray-400 block mt-1 mb-2"><i class="fa-solid fa-key mr-2"></i># (Ele vai pedir sua senha em seguida)</span>
+# Procura redes disponíveis (substitua wlan0 se necessário)
+[iwctl]# station wlan0 scan
 
-<span class="text-gray-400 block mt-2 mb-2"><i class="fa-solid fa-right-from-bracket mr-2"></i># 4. Saia do utilitário</span>
-exit
-</code></pre>
-                </div>
-                <span class="text-base block pt-2"><i class="fa-solid fa-circle-info mr-2"></i>(Se seu dispositivo não for <code>wlan0</code>, use <code>device list</code> dentro do <code>iwctl</code> para descobrir o nome correto.)</span>
-            </li>
+# Lista as redes encontradas
+[iwctl]# station wlan0 get-networks
 
-            <li>Digite <code>archinstall</code> e pressione Enter <i class="fa-solid fa-terminal text-gray-500"></i>.</li>
-            <li>Siga este menu, prestando atenção especial às seções em negrito.</li>
-        </ol>
+# Conecta à sua rede (substitua "NomeDaSuaRede")
+[iwctl]# station wlan0 connect "NomeDaSuaRede" 
+# (Será pedida a senha)
 
-        <h3 class="text-xl font-medium mt-6 mb-3 text-gray-300"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-bars mr-2"></i>
-            Menu <code>archinstall</code>
-        </h3>
+# Verifique se conectou (deve mostrar um IP)
+[iwctl]# station wlan0 show
 
-        <!-- Novo layout de Passos -->
-        <ol class="step-list">
-            <!-- 1. Idioma -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-language mr-2 w-6"></i>Idioma do archinstall</h4>
-                    <p class="text-base leading-relaxed">Navegue com as setas <i class="fa-solid fa-arrow-down"></i><i class="fa-solid fa-arrow-up"></i> até encontrar <strong>pt (Português)</strong> e pressione Enter.</p>
-                </div>
-            </li>
-            <!-- 2. Teclado -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-keyboard mr-2 w-6"></i>Layout do Teclado</h4>
-                    <p class="text-base leading-relaxed">Selecione esta opção, digite <code>br-abnt2</code> e pressione Enter.</p>
-                </div>
-            </li>
-            <!-- 3. Mirrors -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-server mr-2 w-6"></i>Mirrors</h4>
-                    <p class="text-base leading-relaxed">Selecione esta opção. Navegue até <strong>Brazil</strong> e pressione a <strong>Barra de Espaço</strong> <i class="fa-solid fa-bars-staggered"></i> para marcar. Pressione Enter para confirmar.</p>
-                </div>
-            </li>
-            <!-- 4. Localidade -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-map-pin mr-2 w-6"></i>Localidade / Codificação</h4>
-                    <p class="text-base leading-relaxed">
-                        Selecione <strong>Localidade</strong>, digite <code>pt_BR</code> e pressione Enter.
-                        <br>Selecione <strong>Codificação</strong>, confirme <code>UTF-8</code> e pressione Enter.
-                    </p>
-                </div>
-            </li>
-            
-            <!-- DICA: Verificar Disco -->
-            <li class="tip">
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2 text-emerald-300 step-title"><i class="fa-solid fa-lightbulb mr-2"></i>DICA: Verifique seu Disco</h4> <!-- Cor atualizada -->
-                    <p class="text-base leading-relaxed text-emerald-100 step-desc"> <!-- Cor atualizada -->
-                        Pressione <code>Alt + F2</code> para ir a um novo terminal.
-                        <br>Rode o comando <code>lsblk</code>. Identifique seu pendrive pelo <strong>TAMANHO</strong> (ex: 32G, 64G). Ele será algo como <code>/dev/sda</code> ou <code>/dev/sdb</code>.
-                        <br>Escolha o disco correto no menu para não apagar seu HD principal!
-                        <br>Pressione <code>Alt + F1</code> para voltar à tela do instalador.
-                    </p>
-                </div>
-            </li>
+# Saia do iwctl
+[iwctl]# exit</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                 <p>Teste a conexão: <code>ping archlinux.org</code> (Use <code>Ctrl+C</code> para parar).</p>
+            </div>
+        </div>
 
-            <!-- 5. Unidades -->
-            <li class="important">
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2 text-yellow-300 step-title"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Unidades (O MAIS IMPORTANTE)</h4> <!-- Cor atualizada -->
-                    <p class="text-base leading-relaxed text-yellow-100 step-desc"> <!-- Cor atualizada -->
-                        1. Selecione seu <strong>pendrive de destino</strong> (ex: <code>/dev/sdb</code>) e pressione Enter.
-                        <br>2. Na próxima tela, selecione <strong>Limpar e formatar o disco (wipe disk)</strong> e pressione Enter.
-                        <br>3. Em <strong>Sistema de arquivos</strong>, escolha <code>btrfs</code> e pressione Enter.
-                    </p>
-                    <p class="text-sm mt-2 text-gray-400"><strong>Por quê btrfs?</strong> É um sistema de arquivos moderno que suporta compressão (economiza espaço) e "snapshots". Para portabilidade, sua principal vantagem é a eficiência.</p> <!-- Cor atualizada -->
-                </div>
-            </li>
-            <!-- 6. Swap -->
-            <li class="important">
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2 text-yellow-300 step-title"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Swap (IMPORTANTE)</h4> <!-- Cor atualizada -->
-                    <p class="text-base leading-relaxed text-yellow-100 step-desc"> <!-- Cor atualizada -->
-                        Navegue até <strong>Swap</strong> e pressione Enter. Role para baixo <i class="fa-solid fa-arrow-down"></i> até encontrar <strong>Criar zram (zram)</strong> e pressione Enter. Isso evita escritas no disco.
-                    </p>
-                    <p class="text-sm mt-2 text-gray-400"><strong>Por quê zram?</strong> Um swap normal (partição ou arquivo) faria escritas constantes no seu pendrive, desgastando-o rapidamente. O <strong>zram</strong> cria um "disco" de swap compactado diretamente na sua RAM, que é milhares de vezes mais rápida e não sofre desgaste.</p> <!-- Cor atualizada -->
-                </div>
-            </li>
-            <!-- 7. Opções de Montagem -->
-            <li class="important">
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2 text-yellow-300 step-title"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Opções de montagem (IMPORTANTE)</h4> <!-- Cor atualizada -->
-                    <p class="text-base leading-relaxed text-yellow-100 step-desc"> <!-- Cor atualizada -->
-                        1. O <code>archinstall</code> vai sugerir subvolumes (<code>@</code>, <code>@home</code>, <code>@log</code>, etc.).
-                        <br>2. Use as setas para selecionar <strong>cada um deles</strong> (um por vez) e pressione Enter.
-                        <br>3. Você verá um campo "Opções de montagem". Navegue até o final da linha.
-                        <br>4. Digite <code>,noatime</code> (sem espaço). Ex: <code>compress=zstd:1</code> vira <code>compress=zstd:1,noatime</code>.
-                        <br>5. Pressione Enter para salvar e repita para <code>@</code>, <code>@home</code>, <code>@log</code> e <code>@var</code>.
-                    </p>
-                    <p class="text-sm mt-2 text-gray-400"><strong>Por quê <code>,noatime</code>?</strong> Por padrão, o Linux "escreve" no disco toda vez que um arquivo é *lido* (para atualizar o "horário do último acesso"). Adicionar <code>noatime</code> desativa isso, reduzindo drasticamente o número de escritas e aumentando a vida útil do pendrive.</p> <!-- Cor atualizada -->
-                </div>
-            </li>
-            <!-- 8. Bootloader -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-power-off mr-2 w-6"></i>Bootloader</h4>
-                    <p class="text-base leading-relaxed">Confirme que a opção selecionada é <strong>systemd-boot</strong> (geralmente é o padrão). Pressione Enter para confirmar.</p>
-                </div>
-            </li>
-            <!-- 9. Host/Usuário -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-user-plus mr-2 w-6"></i>Nome do Host / Senhas / Usuário</h4>
-                    <p class="text-base leading-relaxed">
-                        1. <strong>Nome do Host:</strong> Pressione Enter, digite um nome para seu PC (ex: <code>arch-portatil</code>) e Enter.
-                        <br>2. <strong>Senha de Root:</strong> Pressione Enter, defina uma senha forte, Enter, confirme-a e Enter.
-                        <br>3. <strong>Contas de Usuário:</strong> Pressione Enter, selecione <strong>Adicionar um usuário</strong>.
-                        <br>4. Digite seu nome de usuário (ex: <code>seu-nome</code>) e defina uma senha (pode ser a mesma do root).
-                        <br>5. <strong>IMPORTANTE:</strong> Na pergunta <strong>"Deve ser um superusuário (sudo)?"</strong>, confirme <strong>Sim</strong>.
-                    </p>
-                </div>
-            </li>
-            <!-- 10. Perfil (MODIFICADO) -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-server mr-2 w-6"></i>Perfil (MODIFICADO)</h4>
-                    <p class="text-base leading-relaxed">
-                        1. Selecione <strong>Perfil</strong> e pressione Enter.
-                        <br>2. Selecione <strong>Tipo</strong>, navegue até <strong>Minimal</strong> e pressione Enter.
-                        <br>3. Não selecione um "Ambiente de Desktop". Vamos fazer isso manualmente depois.
-                        <br>4. Volte ao menu principal (geralmente com Seta Esquerda <i class="fa-solid fa-arrow-left"></i> ou <code>Esc</code>).
-                    </p>
-                </div>
-            </li>
-            <!-- 11. Gráficos -->
-            <li class="important">
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2 text-yellow-300 step-title"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Placa Gráfica (MUITO IMPORTANTE)</h4> <!-- Cor atualizada -->
-                    <p class="text-base leading-relaxed text-yellow-100 step-desc"> <!-- Cor atualizada -->
-                        Selecione esta opção e confirme que <strong>All open-source (default)</strong> está selecionado. Isso garante a portabilidade entre máquinas Intel, AMD e NVIDIA (drivers open-source).
-                    </p>
-                </div>
-            </li>
-            <!-- 12. Áudio -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-volume-high mr-2 w-6"></i>Áudio</h4>
-                    <p class="text-base leading-relaxed">Selecione esta opção e confirme que <strong>pipewire</strong> está selecionado. Pressione Enter.</p>
-                </div>
-            </li>
-            <!-- 13. Pacotes Adicionais (MODIFICADO) -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-box-archive mr-2 w-6"></i>Pacotes Adicionais</h4>
-                    <p class="text-base leading-relaxed">Deixe este campo <strong>em branco</strong>. Vamos instalar tudo o que precisamos manualmente após o reboot. Apenas pressione Enter para pular.</p>
-                </div>
-            </li>
-            <!-- 14. Rede -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-network-wired mr-2 w-6"></i>Rede</h4>
-                    <p class="text-base leading-relaxed">Selecione esta opção e escolha <strong>NetworkManager</strong>. Pressione Enter. Isso facilitará a conexão pós-instalação.</p>
-                </div>
-            </li>
-            <!-- 15. Fuso Horário -->
-            <li>
-                <div class="step-content">
-                    <h4 class="text-lg font-semibold mb-2"><i class="fa-solid fa-clock mr-2 w-6"></i>Fuso Horário / NTP</h4>
-                    <p class="text-base leading-relaxed">
-                        1. Selecione <strong>Fuso Horário</strong>, digite seu fuso (ex: <code>America/Recife</code> ou <code>America/Sao_Paulo</code>) e Enter.
-                        <br>2. Confirme que <strong>NTP (Sincronização de Relógio)</strong> está como <code>True</code>.
-                    </p>
-                </div>
-            </li>
-        </ol>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-terminal"></i>Iniciando o <code>archinstall</code></strong>
+                <p>No prompt, simplesmente digite:</p>
+                <pre><code class="language-bash">archinstall</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                <p>Pressione <code>Enter</code>. O instalador baseado em menus será iniciado.</p>
+            </div>
+        </div>
 
-        <h3 class="text-xl font-medium mt-8 mb-3 text-gray-300"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-download mr-2"></i>
-            Instalar
-        </h3>
-        <p class="text-lg leading-relaxed mb-4">
-            Após configurar todos os passos, navegue até a opção <strong>Instalar</strong> no menu principal e pressione Enter. Confirme todas as opções e aguarde o processo terminar.
-        </p>
+        <div class="alert tip">
+            <i class="fas fa-info-circle"></i>
+            <strong>Navegação no Menu:</strong> Use as <strong>Setas Cima/Baixo</strong> para navegar, <strong>Enter</strong> para selecionar uma opção ou entrar em um sub-menu, e <strong>Espaço</strong> para marcar/desmarcar itens em listas de seleção múltipla (checklists).
+        </div>
 
-        <h2 class="text-2xl font-semibold mt-10 mb-6 text-gray-200"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-wand-magic-sparkles mr-3 text-gray-500"></i>
-            O "Truque" da Portabilidade (Passo Final)
-        </h2>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-language"></i>Configurações de Idioma e Teclado</strong>
+                <ul>
+                    <li><strong>archinstall language:</strong> Navegue e selecione <code>pt</code> (Português).</li>
+                    <li><strong>Keyboard layout:</strong> Selecione <code>br-abnt2</code> (ou o layout do seu teclado).</li>
+                    <li><strong>Mirror region:</strong> Selecione <code>Brazil</code> para acelerar os downloads.</li>
+                     <li><strong>Locale language:</strong> Selecione <code>pt_BR</code>.</li>
+                     <li><strong>Locale encoding:</strong> Selecione <code>UTF-8</code>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-hdd"></i>Seleção e Formatação do Disco Destino</strong>
+                 <div class="alert tip">
+                    <i class="fas fa-search"></i>
+                    <strong>DICA: Verifique o Disco Correto!</strong> Antes de formatar, é crucial ter certeza de qual disco é o seu Pendrive/SSD Destino. Para isso:
+                    <ol>
+                        <li>Pressione <code>Ctrl+Alt+F2</code> para ir para outro terminal (TTY2).</li>
+                        <li>Digite <code>lsblk</code> e pressione Enter.</li>
+                        <li>Identifique seu pendrive destino pela capacidade (SIZE) e nome (NAME, ex: <code>sdb</code>, <code>sdc</code>). <strong>Anote o nome completo</strong> (ex: <code>/dev/sdb</code>).</li>
+                        <li>Pressione <code>Ctrl+Alt+F1</code> para voltar ao instalador (TTY1).</li>
+                    </ol>
+                </div>
+                <ul>
+                    <li><strong>Drive(s):</strong> Navegue com as setas e pressione <code>Enter</code> no seu <strong>Pendrive/SSD Destino</strong> (ex: <code>/dev/sdb</code>). Confirme que é o disco correto!</li>
+                </ul>
+            </div>
+        </div>
         
-        <p class="text-lg leading-relaxed mb-4">
-            Quando a instalação terminar, o <code>archinstall</code> fará uma pergunta crucial:
-        </p>
-
-        <div class="p-4 bg-gray-700 rounded-lg text-lg italic my-4"> <!-- Cor atualizada -->
-            "Would you like to chroot into the newly installed system to perform post-installation tasks?"
+        <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-folder-open"></i>Layout do Disco e Filesystem (BTRFS)</strong>
+                <ul>
+                    <li><strong>Disk layout:</strong> Selecione a opção que diz algo como <code>Wipe all selected drives and use a best-effort default partition layout</code> (Limpar disco e usar layout padrão).</li>
+                    <li><strong>Filesystem:</strong> Selecione <code>btrfs</code>.</li>
+                </ul>
+                 <div class="alert tip">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Por quê BTRFS?</strong> BTRFS é moderno, suporta compressão (economiza espaço e potencialmente reduz escritas) e snapshots (backups). É uma boa escolha para pendrives.
+                </div>
+            </div>
         </div>
-
-        <p class="text-lg leading-relaxed mb-4">
-            Digite <code>y</code> (Sim) e pressione Enter. Você agora está dentro do seu novo sistema no pendrive.
-        </p>
-
-        <p class="text-lg leading-relaxed mb-4">
-            Agora, precisamos fazer o passo final para torná-lo universal. Digite o seguinte comando para editar o arquivo de configuração do kernel:
-        </p>
-
-        <!-- COMANDO ATUALIZADO COM BOTÃO COPIAR -->
-        <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-            <button class="copy-btn" data-clipboard-target="#cmd1" title="Copiar">
-                <i class="fa-solid fa-copy"></i>
-            </button>
-            <pre><code id="cmd1" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"><i class="fa-solid fa-file-lines mr-2"></i># Este comando remove o hook 'autodetect', que é o que impede a portabilidade.</span>
-<span class="text-gray-400 block mb-2"><i class="fa-solid fa-file-lines mr-2"></i># Sem ele, o kernel carregará todos os drivers.</span>
-sed -i 's/ autodetect//' /etc/mkinitcpio.conf
-</code></pre>
-        </div>
-
-        <p class="text-lg leading-relaxed mb-4">
-            Agora, regenere o kernel com a nova configuração. Isso fará com que o kernel inclua todos os drivers necessários na inicialização:
-        </p>
-
-        <!-- COMANDO ATUALIZADO COM BOTÃO COPIAR -->
-        <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-            <button class="copy-btn" data-clipboard-target="#cmd2" title="Copiar">
-                <i class="fa-solid fa-copy"></i>
-            </button>
-            <pre><code id="cmd2" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"><i class="fa-solid fa-arrows-rotate mr-2"></i># Regenera o kernel com a nova configuração</span>
-mkinitcpio -P
-</code></pre>
-        </div>
-
-        <p class="text-lg leading-relaxed mb-4">
-            Pronto! Saia do chroot e reinicie:
-        </p>
-
-        <!-- COMANDO ATUALIZADO COM BOTÃO COPIAR -->
-        <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-            <button class="copy-btn" data-clipboard-target="#cmd3" title="Copiar">
-                <i class="fa-solid fa-copy"></i>
-            </button>
-            <pre><code id="cmd3" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"><i class="fa-solid fa-right-from-bracket mr-2"></i># Sair do chroot</span>
-exit
-<span class="text-gray-400 block mt-2 mb-2"><i class="fa-solid fa-power-off mr-2"></i># Reiniciar o sistema</span>
-reboot
-</code></pre>
-        </div>
-
-        <p class="text-lg leading-relaxed mt-6">
-            <i class="fa-solid fa-rocket mr-2 text-green-500"></i>Retire o pendrive de instalação (ISO) e deixe apenas o seu novo pendrive de sistema. O computador deve dar boot nele, e você poderá levar esse pendrive para qualquer outra máquina (compatível com UEFI).
-        </p>
-
-        <!-- SEÇÃO PÓS-INSTALAÇÃO (MODIFICADA) -->
-        <h2 class="text-2xl font-semibold mt-10 mb-6 text-gray-200 border-t pt-6 border-gray-600"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-forward mr-3 text-gray-500"></i>
-            Pós-Instalação: Do Terminal ao Ambiente Gráfico
-        </h2>
-
-        <p class="text-lg leading-relaxed mb-4">
-            Após reiniciar, você não verá um ambiente gráfico. Você verá um terminal de tela preta (TTY). Isto é o esperado! Siga os passos:
-        </p>
         
-        <ol class="list-decimal pl-6 mb-6 space-y-4 text-lg">
-            <li>
-                <strong>Login no TTY:</strong>
-                <p class="text-base mt-1">O sistema pedirá seu login. Digite o nome de usuário que você criou (ex: <code>seu-nome</code>) e pressione Enter. Em seguida, digite sua senha e Enter.</p>
-            </li>
-            <li>
-                <strong>Conectar ao WiFi:</strong>
-                <p class="text-base mt-1">Primeiro, conecte-se à internet com o NetworkManager:</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd4" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd4" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"><i class="fa-solid fa-wifi mr-2"></i># Lista as redes WiFi disponíveis</span>
+         <div class="step">
+            <div class="step-number">6</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-memory"></i>Swap (ZRAM)</strong>
+                 <div class="alert important">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>IMPORTANTE:</strong> Não use swap em disco para pendrives!
+                </div>
+                <ul>
+                    <li><strong>Swap:</strong> Role para baixo na lista de opções (NÃO selecione apenas "True" ou "False"). Encontre e selecione a opção <code>zram (makes a compressed swap in RAM)</code>.</li>
+                </ul>
+                <div class="alert tip">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Por quê ZRAM?</strong> ZRAM cria uma área de swap comprimida na sua memória RAM. Isso evita completamente as escritas de swap no seu pendrive/SSD, aumentando muito sua vida útil.
+                </div>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">7</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-sliders-h"></i>Opções de Montagem (<code>noatime</code>)</strong>
+                 <div class="alert important">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>IMPORTANTE: Passo Crucial para Longevidade!</strong>
+                </div>
+                <p>O instalador sugerirá subvolumes BTRFS (<code>@</code>, <code>@home</code>, <code>@log</code>, etc.) com opções padrão. Precisamos adicionar <code>noatime</code> a eles:</p>
+                <ol>
+                    <li>Navegue até <strong>Mount options</strong> (ou similar) e entre.</li>
+                    <li>Você verá uma lista dos subvolumes (ex: <code>/</code> montado em <code>@</code>).</li>
+                    <li>Para <strong>CADA UM</strong> dos subvolumes principais (<code>@</code>, <code>@home</code>, <code>@log</code>, <code>@var</code> ou similares que apareçam):
+                        <ul>
+                            <li>Selecione o subvolume com <code>Enter</code>.</li>
+                            <li>Você verá as opções atuais (ex: <code>compress=zstd:1</code>).</li>
+                            <li>Edite a linha, adicionando <code>,noatime</code> no final. O resultado deve ser, por exemplo: <code>compress=zstd:1,noatime</code>.</li>
+                            <li>Pressione <code>Enter</code> para salvar a edição.</li>
+                        </ul>
+                    </li>
+                    <li>Após editar todos, volte ao menu anterior.</li>
+                </ol>
+                 <div class="alert tip">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Por quê <code>noatime</code>?</strong> Por padrão, o Linux atualiza o "tempo de acesso" de um arquivo toda vez que ele é lido. Isso causa muitas escritas pequenas e desnecessárias, especialmente ruins para pendrives/SSDs. <code>noatime</code> desativa essa atualização, reduzindo drasticamente o desgaste.
+                </div>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">8</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-rocket"></i>Bootloader</strong>
+                <ul>
+                    <li><strong>Bootloader:</strong> Selecione <code>systemd-boot</code>. É o padrão, simples e funciona bem para portabilidade UEFI.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">9</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-user-circle"></i>Hostname e Contas</strong>
+                 <ul>
+                    <li><strong>Hostname:</strong> Escolha um nome para a máquina (ex: <code>arch-portatil</code>).</li>
+                    <li><strong>Root password:</strong> Defina uma senha forte para o superusuário (root).</li>
+                    <li><strong>User account:</strong>
+                        <ul>
+                            <li>Selecione <code>Add a user</code>.</li>
+                            <li>Digite um nome de usuário (ex: <code>seu_nome</code>).</li>
+                            <li>Defina uma senha forte para seu usuário.</li>
+                            <li>Quando perguntar <code>Should seu_nome be a superuser (sudo)?</code>, confirme com <code>Yes</code> (pressione <code>Enter</code>).</li>
+                        </ul>
+                    </li>
+                 </ul>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">10</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-desktop"></i>Perfil (Minimal)</strong>
+                 <div class="alert important">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>IMPORTANTE: Selecione Minimal!</strong>
+                </div>
+                 <ul>
+                    <li><strong>Profile:</strong>
+                        <ul>
+                            <li><strong>Type:</strong> Selecione <code>Minimal</code>.</li>
+                            <li><strong>(Ignore Ambiente Gráfico/Placa Gráfica):</strong> O perfil Minimal não pedirá essas opções aqui. Vamos instalá-las manualmente depois.</li>
+                        </ul>
+                     </li>
+                 </ul>
+                 <p>Ao escolher "Minimal", garantimos que apenas o sistema base essencial será instalado, dando-nos controle total sobre o que adicionar depois.</p>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">11</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-volume-up"></i>Áudio</strong>
+                 <ul>
+                     <li><strong>Audio:</strong> Selecione <code>pipewire</code>. É o servidor de áudio moderno e recomendado.</li>
+                 </ul>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">12</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-cogs"></i>Kernel</strong>
+                 <ul>
+                     <li><strong>Kernel:</strong> Selecione <code>linux</code> (o kernel padrão e estável).</li>
+                 </ul>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">13</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-box-open"></i>Pacotes Adicionais</strong>
+                 <ul>
+                     <li><strong>Additional packages:</strong> Deixe este campo <strong>em branco</strong>. Vamos instalar tudo o que precisamos manualmente após a instalação base.</li>
+                 </ul>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">14</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-network-wired"></i>Configuração de Rede</strong>
+                 <ul>
+                     <li><strong>Network configuration:</strong> Selecione <code>NetworkManager</code>. É o gerenciador de rede mais comum e fácil de usar após a instalação.</li>
+                 </ul>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">15</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-clock"></i>Fuso Horário e NTP</strong>
+                 <ul>
+                     <li><strong>Timezone:</strong> Selecione seu fuso horário (ex: <code>America/Sao_Paulo</code> ou <code>America/Recife</code>).</li>
+                     <li><strong>Automatic time sync (NTP):</strong> Selecione <code>True</code>.</li>
+                 </ul>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">16</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-play"></i>Instalar!</strong>
+                 <ul>
+                     <li>Selecione a opção <strong>Install</strong>.</li>
+                     <li>Revise todas as configurações mostradas na tela de confirmação.</li>
+                     <li>Pressione <code>Enter</code> para iniciar a instalação.</li>
+                     <li>Aguarde o processo terminar. Pode levar algum tempo dependendo da sua internet e do pendrive.</li>
+                 </ul>
+            </div>
+        </div>
+        
+        <h2><i class="fas fa-magic"></i>O "Truque" da Portabilidade (Passo Final)</h2>
+        
+         <div class="step">
+            <div class="step-number">17</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-terminal"></i>Entrando no Novo Sistema (chroot)</strong>
+                <p>Quando a instalação terminar, o <code>archinstall</code> fará uma pergunta crucial:</p>
+                <p><code>Would you like to chroot into the newly installed system to perform post-installation tasks?</code></p>
+                <ul>
+                    <li>Digite <code>y</code> (Sim) e pressione <code>Enter</code>.</li>
+                </ul>
+                <p>Você agora está dentro do seu novo sistema Arch Linux no pendrive/SSD destino.</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">18</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-wrench"></i>Removendo o <code>autodetect</code></strong>
+                <p>Este é o passo que garante a portabilidade. Precisamos editar o arquivo de configuração do kernel para que ele carregue *todos* os módulos, e não apenas os detectados na máquina atual.</p>
+                <p>Use o editor <code>micro</code> (que o archinstall geralmente inclui na ISO) ou <code>nano</code> para editar o arquivo:</p>
+                <pre><code class="language-bash"># Recomendado: use micro se disponível
+micro /etc/mkinitcpio.conf
+
+# Alternativa: use nano se micro não estiver presente
+# nano /etc/mkinitcpio.conf</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                 <p>Dentro do editor:</p>
+                 <ol>
+                     <li>Procure pela linha que começa com <code>HOOKS=(...)</code>.</li>
+                     <li>Dentro dos parênteses, localize a palavra <code>autodetect</code>.</li>
+                     <li><strong>Apague APENAS a palavra <code>autodetect</code></strong> e o espaço antes ou depois dela. <strong>NÃO APAGUE MAIS NADA!</strong></li>
+                     <li>Salve o arquivo e saia:
+                        <ul>
+                            <li>No <code>micro</code>: <code>Ctrl+S</code> para salvar, <code>Ctrl+Q</code> para sair.</li>
+                            <li>No <code>nano</code>: <code>Ctrl+O</code> para salvar (Enter para confirmar), <code>Ctrl+X</code> para sair.</li>
+                        </ul>
+                     </li>
+                 </ol>
+                  <div class="alert tip">
+                    <i class="fas fa-code"></i>
+                    <strong>Alternativa com <code>sed</code> (Avançado):</strong> Se preferir, pode usar o comando <code>sed</code> para fazer a mesma coisa sem abrir o editor:
+                    <pre><code class="language-bash">sed -i 's/ autodetect//' /etc/mkinitcpio.conf</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                 </div>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">19</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-sync-alt"></i>Regenerando o Kernel (Initramfs)</strong>
+                <p>Agora, aplique a mudança que fizemos regenerando a imagem do kernel:</p>
+                <pre><code class="language-bash">mkinitcpio -P</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                <p>Aguarde o processo terminar. Você verá várias linhas sendo processadas.</p>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">20</div>
+            <div class="step-content">
+                 <strong><i class="inline-icon fas fa-sign-out-alt"></i>Saindo e Reiniciando</strong>
+                 <p>Pronto! A instalação base e a configuração de portabilidade estão concluídas.</p>
+                 <ol>
+                     <li>Saia do ambiente <code>chroot</code>:
+                        <pre><code class="language-bash">exit</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                     </li>
+                     <li>Reinicie o computador:
+                         <pre><code class="language-bash">reboot</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                     </li>
+                     <li><strong>MUITO IMPORTANTE:</strong> Assim que o PC começar a reiniciar, <strong>remova o Pendrive Instalador (ISO)</strong>. Deixe apenas o seu novo Pendrive/SSD de sistema conectado.</li>
+                 </ol>
+                 <p>Seu computador deve agora dar boot no seu novo Arch Linux portátil!</p>
+            </div>
+        </div>
+        
+        <!-- SEÇÃO PÓS-INSTALAÇÃO REFEITA -->
+        <h2><i class="fas fa-cogs"></i>Pós-Instalação: Do Terminal ao Ambiente Gráfico</h2>
+        <p>Após reiniciar, você será recebido por uma tela preta com um prompt de login (TTY). Aqui começa a configuração manual.</p>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-sign-in-alt"></i>Login</strong>
+                <p>Digite o nome de usuário que você criou (ex: <code>seu_nome</code>) e pressione Enter. Em seguida, digite sua senha (não aparecerá nada enquanto você digita) e pressione Enter.</p>
+                <p>Você estará no prompt de comando do seu usuário (ex: <code>[seu_nome@arch-portatil ~]$</code>).</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-wifi"></i>Conectar à Internet (Novamente)</strong>
+                <p>Como estamos no novo sistema, precisamos conectar à internet usando o <code>NetworkManager</code> que instalamos. Use o comando <code>nmcli</code>:</p>
+                <pre><code class="language-bash"># Listar redes Wi-Fi disponíveis
 nmcli device wifi list
 
-<span class="text-gray-400 block mt-2 mb-2"><i class="fa-solid fa-tower-broadcast mr-2"></i># Conecta à sua rede (substitua com seus dados)</span>
-nmcli device wifi connect "NOME-DA-REDE" password "SUA-SENHA"
-                    </pre>
-                </div>
-            </li>
-            <li>
-                <strong>Atualizar o Sistema:</strong>
-                <p class="text-base mt-1">Agora que tem internet, sincronize e atualize todos os pacotes:</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd5" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd5" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"><i class="fa-solid fa-box-open mr-2"></i># Atualiza todo o sistema</span>
-sudo pacman -Syu
-</code></pre>
-                </div>
-            </li>
-            <li>
-                <strong>Criar Diretórios de Usuário:</strong>
-                <p class="text-base mt-1">Para ter as pastas padrão (Documentos, Músicas, Imagens, etc.), instale e rode este utilitário:</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-userdirs" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-userdirs" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"><i class="fa-solid fa-folder-plus mr-2"></i># Instala o pacote</span>
-sudo pacman -S xdg-user-dirs
+# Conectar à sua rede (substitua "NomeDaSuaRede" e "SuaSenha")
+nmcli device wifi connect "NomeDaSuaRede" password "SuaSenha"
 
-<span class="text-gray-400 block mt-2 mb-2"><i class="fa-solid fa-arrows-spin mr-2"></i># Roda o utilitário para criar as pastas</span>
-xdg-user-dirs-update
-</code></pre>
-                </div>
-            </li>
-            <li>
-                <strong>Instalar Ambiente Gráfico (Grupos Lógicos):</strong>
-                <p class="text-base mt-1">Vamos instalar o Hyprland e seus utilitários em grupos, para você saber o que cada um faz:</p>
+# Verificar conexão (procure por "connected" e um IP)
+nmcli connection show
+ip address show</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                <p>Teste com <code>ping archlinux.org</code>.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-sync"></i>Atualizar o Sistema</strong>
+                <p>É sempre bom começar atualizando todos os pacotes para as últimas versões:</p>
+                <pre><code class="language-bash">sudo pacman -Syu</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                <p>Digite sua senha de usuário quando solicitado. Confirme a atualização se houver pacotes para atualizar.</p>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-folder-plus"></i>Criar Diretórios Padrão do Usuário</strong>
+                <p>Para criar as pastas como <code>~/Documentos</code>, <code>~/Imagens</code>, etc., instale e rode o utilitário:</p>
+                <pre><code class="language-bash"># Instala o pacote (pode já estar instalado como dependência)
+sudo pacman -S --needed xdg-user-dirs 
+
+# Cria/Atualiza as pastas
+xdg-user-dirs-update</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-palette"></i>Instalando o Ambiente Gráfico (Hyprland + Essenciais)</strong>
+                <p>Agora vamos instalar os pacotes necessários para o Hyprland e um ambiente funcional. Vamos dividir em grupos para entender melhor:</p>
                 
-                <p class="text-base mt-2 font-semibold">Grupo 1: O Básico (Hyprland, Terminal e Editor)</p>
-                <p class="text-sm"><code>hyprland</code> (o compositor), <code>kitty</code> (terminal rápido para Wayland) e <code>micro</code> (seu editor de texto).</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd6" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd6" class="font-mono text-sm text-green-300 block pt-8">
-sudo pacman -S hyprland kitty micro
-</code></pre>
-                </div>
+                <h3>Grupo 1: Hyprland e Dependências Gráficas</h3>
+                <pre><code class="language-bash">sudo pacman -S hyprland xdg-desktop-portal-hyprland polkit-kde-agent qt5-wayland qt6-wayland</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                <ul>
+                    <li><code>hyprland</code>: O compositor Wayland em si.</li>
+                    <li><code>xdg-desktop-portal-hyprland</code>: Essencial para compatibilidade (compartilhamento de tela, seletores de arquivo).</li>
+                    <li><code>polkit-kde-agent</code>: Necessário para autenticação de privilégios (ex: GParted, configurações de sistema).</li>
+                    <li><code>qt5-wayland</code>, <code>qt6-wayland</code>: Camadas de compatibilidade para aplicativos Qt rodarem nativamente em Wayland.</li>
+                </ul>
 
-                <p class="text-base mt-2 font-semibold">Grupo 2: Aplicativos Essenciais</p>
-                <p class="text-sm"><code>firefox</code> (navegador), <code>thunar</code> (gerenciador de arquivos leve) e <code>wofi</code> (lançador de aplicativos, o "menu iniciar").</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-utils" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-utils" class="font-mono text-sm text-green-300 block pt-8">
-sudo pacman -S firefox thunar wofi
-</code></pre>
-                </div>
-                
-                <p class="text-base mt-2 font-semibold">Grupo 3: Utilitários de Desktop</p>
-                <p class="text-sm"><code>mako</code> (para notificações), <code>swaybg</code> (para definir papel de parede), <code>swaylock</code> (para bloquear a tela), <code>pavucontrol</code> (interface gráfica para controlar o áudio) e <code>waybar</code> (a barra de status).</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-desktop-utils" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-desktop-utils" class="font-mono text-sm text-green-300 block pt-8">
-sudo pacman -S mako swaybg swaylock pavucontrol waybar
-</code></pre>
-                </div>
+                <h3>Grupo 2: Terminal, Lançador e Ferramentas Básicas</h3>
+                <pre><code class="language-bash">sudo pacman -S kitty wofi micro firefox thunar waybar mako swaybg swaylock grim slurp wl-clipboard</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                <ul>
+                    <li><code>kitty</code>: Um terminal rápido e moderno, ótimo para Wayland.</li>
+                    <li><code>wofi</code>: Um lançador de aplicativos versátil (alternativa ao Rofi).</li>
+                    <li><code>micro</code>: Editor de texto simples no terminal (alternativa ao nano).</li>
+                    <li><code>firefox</code>: Navegador web.</li>
+                    <li><code>thunar</code>: Gerenciador de arquivos leve (GTK).</li>
+                    <li><code>waybar</code>: Barra de status/painel popular para Wayland.</li>
+                    <li><code>mako</code>: Servidor de notificações leve.</li>
+                    <li><code>swaybg</code>: Utilitário para definir papel de parede.</li>
+                    <li><code>swaylock</code>: Ferramenta para bloquear a tela.</li>
+                     <li><code>grim</code>: Ferramenta para tirar screenshots no Wayland.</li>
+                    <li><code>slurp</code>: Ferramenta para selecionar uma área da tela (usada com o <code>grim</code>).</li>
+                     <li><code>wl-clipboard</code>: Ferramentas para copiar/colar via linha de comando no Wayland.</li>
+                </ul>
 
-                <p class="text-base mt-2 font-semibold">Grupo 4: Integração do Sistema (A "Cola")</p>
-                <p class="text-sm"><code>xdg-desktop-portal-hyprland</code> (essencial para Wayland, permite captura de tela, etc.) e <code>polkit-kde-agent</code> (gerencia permissões para aplicativos gráficos, como GParted).</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-glue" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-glue" class="font-mono text-sm text-green-300 block pt-8">
-sudo pacman -S xdg-desktop-portal-hyprland polkit-kde-agent
-</code></pre>
+                <h3>Grupo 3: Fontes Essenciais e Ícones</h3>
+                 <pre><code class="language-bash">sudo pacman -S noto-fonts noto-fonts-emoji ttf-font-awesome</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                 <ul>
+                    <li><code>noto-fonts</code>, <code>noto-fonts-emoji</code>: Fontes padrão com boa cobertura de caracteres e emojis.</li>
+                    <li><code>ttf-font-awesome</code>: Fonte de ícones muito usada em barras como a Waybar.</li>
+                </ul>
+                <div class="alert tip">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Agrupando Comandos:</strong> Você pode instalar todos de uma vez se preferir, juntando os nomes dos pacotes em um único comando <code>sudo pacman -S ...</code>.
                 </div>
-            </li>
-            
-            <li class="essential">
-                <strong>Configuração Inicial (Melhor Prática):</strong>
-                <p class="text-base mt-1">Em vez de editar o arquivo de exemplo, vamos criar um <code>hyprland.conf</code> limpo e organizado, que "lê" outros arquivos. Isso é muito mais fácil de manter.</p>
-                
-                <p class="text-base mt-1">1. Crie o arquivo <code>hyprland.conf</code> principal:</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-conf-main" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-conf-main" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"># Abre o arquivo (vazio) com micro</span>
-micro ~/.config/hypr/hyprland.conf
-</code></pre>
-                </div>
-                <p class="text-base mt-1">2. Cole este conteúdo dentro do <code>micro</code>. Este é o seu arquivo "mestre":</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-conf-paste" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-conf-paste" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400"># --- Arquivo Mestre: hyprland.conf ---</span>
+            </div>
+        </div>
 
-<span class="text-gray-400"># Monitores (exemplo)</span>
+        <div class="step">
+            <div class="step-number">6</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-file-code"></i>Configuração Inicial do Hyprland</strong>
+                <p>O Hyprland precisa de um arquivo de configuração para funcionar. Vamos criar um básico:</p>
+                <ol>
+                    <li>Crie o diretório de configuração:
+                        <pre><code class="language-bash">mkdir -p ~/.config/hypr</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                    </li>
+                    <li>Crie e edite o arquivo de configuração principal:
+                        <pre><code class="language-bash">micro ~/.config/hypr/hyprland.conf</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                    </li>
+                    <li>Cole o seguinte conteúdo básico dentro do arquivo:
+                        <pre><code class="language-ini"># Configuração Mínima Hyprland
+
+# Monitor (ajuste se necessário, ex: eDP-1 para laptop)
 monitor=,preferred,auto,1
 
-<span class="text-gray-400"># Carrega arquivos de configuração separados</span>
-source = ~/.config/hypr/startup.conf
-source = ~/.config/hypr/binds.conf
-source = ~/.config/hypr/windowrules.conf
+# Programas de Inicialização
+exec-once = waybar               # Inicia a barra Waybar
+exec-once = swaybg -i ~/Imagens/wallpaper.png # Define um wallpaper (crie a pasta e coloque uma imagem!)
+exec-once = /usr/lib/polkit-kde-authentication-agent-1 # Agente de autenticação
 
-<span class="text-gray-400"># Configurações de Aparência (exemplo)</span>
+# Atalhos de Teclado Essenciais
+\$mod = SUPER # Define a tecla "Windows" como modificador principal
+
+bind = \$mod, RETURN, exec, kitty     # Abre o terminal Kitty com Super+Enter
+bind = \$mod, Q, killactive,          # Fecha a janela ativa com Super+Q
+bind = \$mod, M, exit,                # Sai do Hyprland (logout) com Super+M
+bind = \$mod, E, exec, thunar         # Abre o Thunar com Super+E
+bind = \$mod, D, exec, wofi --show drun # Abre o Wofi com Super+D
+bind = \$mod, SPACE, togglefloating, # Alterna janela flutuante com Super+Espaço
+
+# Mover foco com Super + Setas
+bind = \$mod, left, movefocus, l
+bind = \$mod, right, movefocus, r
+bind = \$mod, up, movefocus, u
+bind = \$mod, down, movefocus, d
+
+# Mudar para Workspaces 1-5 com Super + Números
+bind = \$mod, 1, workspace, 1
+bind = \$mod, 2, workspace, 2
+bind = \$mod, 3, workspace, 3
+bind = \$mod, 4, workspace, 4
+bind = \$mod, 5, workspace, 5
+
+# Mover janela ativa para Workspaces 1-5 com Super + Shift + Números
+bind = \$mod SHIFT, 1, movetoworkspace, 1
+bind = \$mod SHIFT, 2, movetoworkspace, 2
+bind = \$mod SHIFT, 3, movetoworkspace, 3
+bind = \$mod SHIFT, 4, movetoworkspace, 4
+bind = \$mod SHIFT, 5, movetoworkspace, 5
+
+# Mover/Redimensionar janelas com mouse + Super
+bindm = \$mod, mouse:272, movewindow
+bindm = \$mod, mouse:273, resizewindow
+
+# Configurações de Input (Teclado Brasileiro)
+input {
+    kb_layout = br
+    kb_variant = abnt2
+    follow_mouse = 1 # Foco segue o mouse
+}
+
+# Aparência Básica (Bordas, Gaps)
 general {
     gaps_in = 5
     gaps_out = 10
     border_size = 2
     col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
     col.inactive_border = rgba(595959aa)
-    layout = dwindle
+    layout = dwindle # Layout padrão (espiral)
 }
 
-input {
-    kb_layout = br
-    kb_variant = abnt2
-    follow_mouse = 1
+# Decoração (Bordas arredondadas, Sombra)
+decoration {
+    rounding = 10
+    drop_shadow = yes
+    shadow_range = 4
+    shadow_render_power = 3
+    col.shadow = rgba(1a1a1aee)
+
+    # Configuração de Blur (Opcional, pode consumir mais recursos)
+    # blur {
+    #    enabled = true
+    #    size = 3
+    #    passes = 1
+    # }
 }
 
-gestures {
-    workspace_swipe = on
-}
-</code></pre>
-                </div>
-                <p class="text-base mt-1">3. Salve e saia (<code>Ctrl+S</code>, <code>Ctrl+Q</code>). Agora, crie os arquivos que ele precisa:</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-conf-files" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-conf-files" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"># Cria o arquivo de inicialização</span>
-micro ~/.config/hypr/startup.conf
-</code></pre>
-                </div>
-                <p class="text-base mt-1">4. Cole isto no <code>startup.conf</code> (são os programas que rodam ao iniciar):</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-conf-startup" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-conf-startup" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400"># --- Programas de Inicialização ---</span>
-exec-once = /usr/lib/polkit-kde-authentication-agent-1
-exec-once = waybar
-exec-once = swaybg -i ~/Imagens/wallpaper.png <span class="text-gray-400"># (troque pelo seu wallpaper)</span>
-exec-once = mako <span class="text-gray-400"># (servidor de notificação)</span>
-</code></pre>
-                </div>
-                <p class="text-base mt-1">5. Salve e saia. Crie o arquivo de atalhos:</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-conf-binds-file" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-conf-binds-file" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"># Cria o arquivo de atalhos</span>
-micro ~/.config/hypr/binds.conf
-</code></pre>
-                </div>
-                <p class="text-base mt-1">6. Cole isto no <code>binds.conf</code> (seus atalhos de teclado):</p>
-                 <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-conf-binds" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-conf-binds" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400"># --- Atalhos de Teclado (Binds) ---</span>
-$mod = SUPER <span class="text-gray-400"># Tecla "Windows"</span>
+# Animações (Opcional)
+# animations {
+#    enabled = yes
+#    bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+#    animation = windows, 1, 7, myBezier
+#    animation = windowsOut, 1, 7, default, popin 80%
+#    animation = border, 1, 10, default
+#    animation = fade, 1, 7, default
+#    animation = workspaces, 1, 6, default
+# }
 
-<span class="text-gray-400"># Atalho para o Terminal</span>
-bind = $mod, RETURN, exec, kitty
+# Layout Dwindle (Espiral)
+dwindle {
+    pseudotile = yes 
+    preserve_split = yes 
+}</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                    </li>
+                    <li>Salve e saia (<code>Ctrl+S</code>, <code>Ctrl+Q</code> no micro).</li>
+                    <li><strong>Crie a pasta de Imagens</strong> e coloque um arquivo <code>wallpaper.png</code> lá (ou ajuste o caminho no <code>hyprland.conf</code>):
+                        <pre><code class="language-bash">mkdir ~/Imagens
+# Agora, use um navegador ou outra ferramenta para baixar uma imagem
+# e salvá-la como ~/Imagens/wallpaper.png</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                    </li>
+                </ol>
+            </div>
+        </div>
 
-<span class="text-gray-400"># Atalho para o Lançador (wofi)</span>
-bind = $mod, D, exec, wofi --show drun
-
-<span class="text-gray-400"># Atalho para fechar janela</span>
-bind = $mod, Q, killactive,
-
-<span class="text-gray-400"># Atalho para bloquear a tela</span>
-bind = $mod, L, exec, swaylock
-
-<span class="text-gray-400"># Mover foco</span>
-bind = $mod, left, movefocus, l
-bind = $mod, right, movefocus, r
-bind = $mod, up, movefocus, u
-bind = $mod, down, movefocus, d
-</code></pre>
-                </div>
-                <p class="text-base mt-1">7. Salve e saia. (Deixaremos o <code>windowrules.conf</code> vazio por enquanto).</p>
-            </li>
-
-            <li>
-                <strong>Iniciar o Ambiente Gráfico:</strong>
-                <p class="text-base mt-1">Agora sim! Após salvar o arquivo de configuração, digite no terminal:</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd7" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd7" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"><i class="fa-solid fa-play mr-2"></i># Inicia o Hyprland (Note o 'H' maiúsculo)</span>
-Hyprland
-</code></pre>
-                </div>
-            </li>
-        </ol>
+        <div class="step">
+            <div class="step-number">7</div>
+            <div class="step-content">
+                <strong><i class="inline-icon fas fa-sign-in-alt"></i>Iniciando o Hyprland (Pela Primeira Vez)</strong>
+                <p>Agora, no terminal TTY, digite:</p>
+                <pre><code class="language-bash">Hyprland</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                 <p>Pressione Enter. Seu ambiente gráfico Hyprland deve iniciar!</p>
+                 <p>Explore os atalhos que definimos:</p>
+                 <ul>
+                    <li><code>Super + Enter</code>: Abrir terminal (Kitty)</li>
+                    <li><code>Super + D</code>: Abrir lançador (Wofi)</li>
+                    <li><code>Super + Q</code>: Fechar janela</li>
+                    <li><code>Super + M</code>: Sair do Hyprland (volta para o TTY)</li>
+                 </ul>
+            </div>
+        </div>
         
-        <p class="text-lg leading-relaxed mt-6">
-            Pronto! Você deve ver sua barra <code>waybar</code> e o wallpaper (se configurou o caminho). Tente usar <code>Super + D</code> para abrir o `wofi` e <code>Super + Enter</code> para abrir o `kitty`.
-        </p>
+        <!-- SEÇÃO PRÓXIMOS PASSOS -->
+        <h2><i class="fas fa-forward"></i>Próximos Passos e Customização</h2>
+        <p>Parabéns! Você tem um sistema Arch Linux portátil com Hyprland. Agora começa a diversão da customização.</p>
 
-        <!-- NOVA SEÇÃO: AUR -->
-        <h2 class="text-2xl font-semibold mt-10 mb-6 text-gray-200 border-t pt-6 border-gray-600"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-star mr-3 text-gray-500"></i>
-            Passo Essencial: Ativando o AUR (com <code>yay</code>)
-        </h2>
-        <p class="text-lg leading-relaxed mb-4">
-            O Arch User Repository (AUR) é um repositório gigante de programas mantidos pela comunidade. Para usá-lo, você precisa de um "AUR helper" como o <code>yay</code>.
-        </p>
-        <ol class="list-decimal pl-6 mb-6 space-y-4 text-lg">
-            <li>
-                <strong>Instalar Pré-requisitos:</strong>
-                <p class="text-base mt-1">Você precisa do <code>git</code> (para baixar) e do <code>base-devel</code> (para compilar).</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-aur-deps" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-aur-deps" class="font-mono text-sm text-green-300 block pt-8">
-sudo pacman -S git base-devel --needed
-</code></pre>
+        <div class="step">
+            <div class="step-number"><i class="fas fa-paint-brush"></i></div>
+            <div class="step-content">
+                <strong>Configurando sua Waybar</strong>
+                <p>A configuração padrão da Waybar é muito básica. Para customizá-la:</p>
+                <ol>
+                    <li>Crie os diretórios: <code>mkdir -p ~/.config/waybar</code></li>
+                    <li>Copie os arquivos de exemplo: <code>cp /etc/xdg/waybar/* ~/.config/waybar/</code></li>
+                    <li>Edite <code>~/.config/waybar/config</code> (JSON) e <code>~/.config/waybar/style.css</code> (CSS) ao seu gosto.</li>
+                    <li>Reinicie a Waybar (feche-a com <code>killall waybar</code> e reinicie via Wofi ou terminal) ou reinicie o Hyprland.</li>
+                </ol>
+                 <div class="alert tip">
+                    <i class="fas fa-icons"></i>
+                    <strong>Ícones na Waybar:</strong> Certifique-se de ter a fonte <code>ttf-font-awesome</code> instalada e referenciada no seu <code>style.css</code> para os ícones aparecerem corretamente.
                 </div>
-            </li>
-            <li>
-                <strong>Clonar e Compilar o <code>yay</code>:</strong>
-                <p class="text-base mt-1">Vamos usar o <code>git</code> para baixar o código-fonte do <code>yay</code> e compilá-lo.</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-aur-build" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-aur-build" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"># 1. Vá para uma pasta temporária (ex: ~/Downloads)</span>
-cd ~/Downloads
+            </div>
+        </div>
 
-<span class="text-gray-400 block mt-2 mb-2"># 2. Clone o repositório do yay</span>
+        <div class="step">
+            <div class="step-number"><i class="fas fa-plus"></i></div>
+            <div class="step-content">
+                <strong>Instalando Mais Programas</strong>
+                <p>Use o <code>pacman</code> para instalar mais aplicativos dos repositórios oficiais:</p>
+                <pre><code class="language-bash"># Exemplo: Instalar GIMP (editor de imagem) e VLC (player de vídeo)
+sudo pacman -S gimp vlc</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number"><i class="fas fa-puzzle-piece"></i></div>
+             <div class="step-content">
+                <strong>Explorando o AUR (Arch User Repository)</strong>
+                <p>Muitos programas (como Google Chrome, Spotify, temas específicos) não estão nos repositórios oficiais, mas sim no AUR. Para acessá-lo facilmente, instale um AUR helper como o <code>yay</code>:</p>
+                <pre><code class="language-bash"># Instalar dependências para compilação
+sudo pacman -S --needed base-devel git
+
+# Clonar, compilar e instalar o yay
 git clone https://aur.archlinux.org/yay.git
-
-<span class="text-gray-400 block mt-2 mb-2"># 3. Entre na pasta e compile</span>
 cd yay
 makepkg -si
-</code></pre>
+
+# Sair do diretório e limpá-lo (opcional)
+cd ..
+rm -rf yay
+
+# Agora use 'yay' como o 'pacman' para instalar do AUR
+# Exemplo: yay -S google-chrome</code><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i>Copiar</button></pre>
+                 <div class="alert danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Cuidado com o AUR:</strong> Pacotes do AUR são mantidos pela comunidade. Verifique os PKGBUILDs antes de instalar.
                 </div>
-            </li>
-            <li>
-                <strong>Usar o <code>yay</code>:</strong>
-                <p class="text-base mt-1">Pronto! Agora você pode instalar programas do AUR (como o <code>nwg-look</code> ou <code>brave-bin</code>) com o mesmo comando que usa para o pacman:</p>
-                <div class="relative bg-gray-950 p-4 rounded-md overflow-x-auto my-4"> <!-- Cor atualizada -->
-                    <button class="copy-btn" data-clipboard-target="#cmd-aur-use" title="Copiar">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <pre><code id="cmd-aur-use" class="font-mono text-sm text-green-300 block pt-8">
-<span class="text-gray-400 block mb-2"># Ex: Instala o nwg-look (do AUR)</span>
-yay -S nwg-look
-<span class="text-gray-400 block mt-2 mb-2"># O 'yay -Syu' atualiza tanto os pacotes oficiais quanto os do AUR</span>
-yay -Syu
-</code></pre>
-                </div>
-            </li>
-        </ol>
-
-
-        <!-- NOVA SEÇÃO: PRÓXIMOS PASSOS (ATUALIZADA) -->
-        <h2 class="text-2xl font-semibold mt-10 mb-6 text-gray-200 border-t pt-6 border-gray-600"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-puzzle-piece mr-3 text-gray-500"></i>
-            Próximos Passos: Customizando seu Hyprland
-        </h2>
-        <p class="text-lg leading-relaxed mb-4">
-            Agora que seu sistema está funcional e com AUR, veja os próximos passos:
-        </p>
-
-        <ul class="list-none space-y-4 text-lg">
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-grip-lines mr-2 text-blue-500"></i>Configurando sua Waybar</h4>
-                <p class="text-sm leading-relaxed"><strong>Quando usar?</strong> Imediatamente. A <code>waybar</code> não vai iniciar (ou vai iniciar com erro) até ter um arquivo de configuração.</p>
-                <ul class="list-disc pl-5 mt-2 text-sm space-y-1">
-                    <li><strong>1. Crie as pastas:</strong> <code>mkdir -p ~/.config/waybar</code></li>
-                    <li><strong>2. Copie os arquivos padrão:</strong></li>
-                    <li><code>cp /etc/xdg/waybar/config ~/.config/waybar/config</code></li>
-                    <li><code>cp /etc/xdg/waybar/style.css ~/.config/waybar/style.css</code></li>
-                    <li><strong>3. Edite:</strong> Use <code>micro ~/.config/waybar/config</code> para editar os módulos (ex: <code>"hyprland/workspaces"</code>, <code>"clock"</code>, <code>"pulseaudio"</code>). Use <code>micro ~/.config/waybar/style.css</code> para mudar o visual.</li>
+            </div>
+        </div>
+        
+         <div class="step">
+            <div class="step-number"><i class="fas fa-cog"></i></div>
+            <div class="step-content">
+                <strong>Aprofundando a Configuração do Hyprland</strong>
+                <p>Explore a Wiki oficial do Hyprland (<a href="https://wiki.hyprland.org/" target="_blank">https://wiki.hyprland.org/</a>) para aprender sobre:</p>
+                <ul>
+                    <li><strong>Binds Avançados:</strong> Criar atalhos mais complexos.</li>
+                    <li><strong>Window Rules:</strong> Definir comportamento específico para certas janelas (tamanho, posição, workspace inicial).</li>
+                    <li><strong>Variáveis de Ambiente:</strong> Forçar aplicativos a rodar em Wayland, definir temas, etc.</li>
+                    <li><strong>Monitores Múltiplos:</strong> Configurar diferentes resoluções e posições.</li>
+                    <li><strong>Animações:</strong> Customizar os efeitos visuais.</li>
                 </ul>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-right-to-bracket mr-2 text-blue-500"></i>Login Automático (Display Manager)</h4>
-                <p class="text-sm leading-relaxed"><strong>Quando usar?</strong> Quando você cansar de digitar <code>Hyprland</code> manualmente no terminal (TTY) toda vez que ligar o PC.</p>
-                <ul class="list-disc pl-5 mt-2 text-sm space-y-1">
-                    <li><strong>1. Instale um DM:</strong> O <code>sddm</code> é uma escolha popular. <code>yay -S sddm sddm-config-editor-git</code></li>
-                    <li><strong>2. Ative o Serviço:</strong> <code>sudo systemctl enable sddm</code></li>
-                    <li><strong>3. Reinicie:</strong> Na próxima vez, você verá uma tela de login gráfica.</li>
-                </ul>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-brands fa-bluetooth-b mr-2 text-blue-500"></i>Configurando Bluetooth</h4>
-                <p class="text-sm leading-relaxed"><strong>Quando usar?</strong> Quando você quiser conectar um fone de ouvido ou mouse sem fio.</p>
-                <ul class="list-disc pl-5 mt-2 text-sm space-y-1">
-                    <li><strong>1. Instale os Pacotes:</strong> <code>sudo pacman -S bluez bluez-utils blueman</code></li>
-                    <li><strong>2. Ative o Serviço:</strong> <code>sudo systemctl enable bluetooth</code></li>
-                    <li><strong>3. Reinicie:</strong> Após reiniciar, rode <code>blueman-manager</code> para procurar e parear dispositivos.</li>
-                </ul>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-palette mr-2 text-blue-500"></i>Temas, Ícones e Fontes</h4>
-                <p class="text-sm leading-relaxed"><strong>Quando usar?</strong> Quando o <code>thunar</code> e o <code>wofi</code> parecerem "feios", com ícones quebrados, ou o texto parecer simples demais.</p>
-                <ul class="list-disc pl-5 mt-2 text-sm space-y-1">
-                    <li><strong>Fontes e Emojis:</strong> <code>sudo pacman -S noto-fonts noto-fonts-emoji</code></li>
-                    <li><strong>Tema de Ícones:</strong> <code>sudo pacman -S papirus-icon-theme</code> (um tema popular)</li>
-                    <li><strong>Aplicador de Tema:</strong> <code>nwg-look</code> (do AUR, use <code>yay -S nwg-look</code>) ajuda a definir seu tema GTK e ícones.</li>
-                </ul>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-camera mr-2 text-blue-500"></i>Captura de Tela (Print)</h4>
-                <p class="text-sm leading-relaxed"><strong>Quando usar?</strong> Quando você precisar tirar um print da tela.</p>
-                <ul class="list-disc pl-5 mt-2 text-sm space-y-1">
-                    <li><strong>Pacotes:</strong> <code>grim</code> (tira o print) e <code>slurp</code> (permite selecionar uma área).</li>
-                    <li><strong>Comando:</strong> <code>sudo pacman -S grim slurp</code></li>
-                    <li><strong>Configuração (no <code>hyprland.conf</code>):</strong> <code>bind = , PRINT, exec, grim -g "$(slurp)" - | wl-copy</code> (Tira print da área selecionada e copia para o clipboard).</li>
-                </ul>
-            </li>
+                <p>Edite seu <code>~/.config/hypr/hyprland.conf</code> e adicione mais opções conforme aprende.</p>
+            </div>
+        </div>
+            
+        <!-- NOVA SEÇÃO: 30 PROGRAMAS ÚTEIS -->
+        <h2><i class="fas fa-tools"></i>Referência: Programas Úteis e Comandos Essenciais</h2>
+        
+         <h3><i class="fas fa-terminal"></i>Comandos Essenciais do Pacman e Yay</h3>
+        <ul>
+            <li><code>sudo pacman -Syu</code>: Sincroniza e atualiza todos os pacotes oficiais.</li>
+            <li><code>sudo pacman -S nome-do-pacote</code>: Instala um pacote oficial.</li>
+            <li><code>sudo pacman -R nome-do-pacote</code>: Remove um pacote oficial (mantém dependências).</li>
+            <li><code>sudo pacman -Rns nome-do-pacote</code>: Remove um pacote oficial e suas dependências não usadas por outros.</li>
+            <li><code>pacman -Q nome-do-pacote</code>: Verifica se um pacote oficial está instalado.</li>
+             <li><code>pacman -Qi nome-do-pacote</code>: Mostra informações detalhadas sobre um pacote oficial instalado.</li>
+             <li><code>pacman -Ql nome-do-pacote</code>: Lista os arquivos pertencentes a um pacote oficial instalado.</li>
+            <li><code>pacman -Qs termo-de-busca</code>: Procura por pacotes oficiais instalados.</li>
+            <li><code>pacman -Ss termo-de-busca</code>: Procura por pacotes oficiais nos repositórios.</li>
+            <li><code>yay -Syu</code>: Sincroniza e atualiza pacotes oficiais E do AUR.</li>
+            <li><code>yay -S nome-do-pacote-aur</code>: Instala um pacote do AUR (ou oficial).</li>
+            <li><code>yay -Rns nome-do-pacote</code>: Remove um pacote (oficial ou AUR) e suas dependências.</li>
+            <li><code>yay -Qs termo-de-busca</code>: Procura por pacotes instalados (oficiais ou AUR).</li>
+            <li><code>yay -Ss termo-de-busca</code>: Procura por pacotes nos repositórios E no AUR.</li>
+             <li><code>yay -Scc</code>: Limpa TODO o cache de compilação e download (libera espaço).</li>
+              <li><code>sudo pacman -Rns $(pacman -Qtdq)</code>: Remove pacotes órfãos (que não são mais dependências de nada).</li>
         </ul>
 
-        <!-- NOVA SEÇÃO: 30 Programas (Renomeada) -->
-        <h2 class="text-2xl font-semibold mt-10 mb-6 text-gray-200 border-t pt-6 border-gray-600"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-boxes-stacked mr-3 text-gray-500"></i>
-            Referência: Programas Úteis e Comandos Essenciais
-        </h2>
-        <p class="text-lg leading-relaxed mb-4">
-            Aqui está uma lista de consulta rápida para gerenciar seu sistema:
-        </p>
+        <h3><i class="fas fa-box"></i>Lista de Programas Úteis (Exemplos)</h3>
+        <p>Use <code>sudo pacman -S <pacote></code> para os oficiais e <code>yay -S <pacote></code> para os do AUR.</p>
+        <ul class="program-list">
+             <li class="category">Terminais</li>
+             <li><strong>kitty (Oficial)</strong> <code>kitty</code><br>Já instalado. Rápido, GPU-accelerated. Config: <code>~/.config/kitty/kitty.conf</code>.</li>
+             <li><strong>foot (Oficial)</strong> <code>foot</code><br>Extremamente leve e rápido, focado em Wayland. Config: <code>~/.config/foot/foot.ini</code>.</li>
+             <li><strong>alacritty (Oficial)</strong> <code>alacritty</code><br>Outro terminal rápido com GPU. Config: <code>~/.config/alacritty/alacritty.yml</code>.</li>
+             
+             <li class="category">Produtividade & Texto</li>
+             <li><strong>micro (Oficial)</strong> <code>micro</code><br>Já instalado. Editor de texto TUI fácil. Alternativa ao Nano/Vim.</li>
+              <li><strong>neovim (Oficial)</strong> <code>neovim</code><br>Editor de texto modal poderoso (sucessor do Vim). Curva de aprendizado maior. Config: <code>~/.config/nvim/init.vim</code> (ou Lua).</li>
+             <li><strong>libreoffice-still (Oficial)</strong> <code>libreoffice-still</code><br>Suíte de escritório completa (Writer, Calc, Impress).</li>
+             <li><strong>obsidian (AUR)</strong> <code>obsidian</code><br>Aplicativo de anotações baseado em Markdown. Ótimo para gestão de conhecimento.</li>
+             <li><strong>zathura + zathura-pdf-mupdf (Oficial)</strong> <code>zathura zathura-pdf-mupdf</code><br>Visualizador de PDF minimalista com atalhos estilo Vim.</li>
+             
+             <li class="category">Navegadores & Comunicação</li>
+             <li><strong>firefox (Oficial)</strong> <code>firefox</code><br>Já instalado. Navegador padrão.</li>
+             <li><strong>chromium (Oficial)</strong> <code>chromium</code><br>Base open-source do Google Chrome.</li>
+             <li><strong>google-chrome (AUR)</strong> <code>google-chrome</code><br>Versão oficial do Google Chrome.</li>
+             <li><strong>brave-bin (AUR)</strong> <code>brave-bin</code><br>Navegador Brave (foco em privacidade).</li>
+             <li><strong>discord (Oficial)</strong> <code>discord</code><br>Aplicativo de chat.</li>
+              <li><strong>vesktop (AUR)</strong> <code>vesktop</code><br>Cliente Discord alternativo e mais leve.</li>
+             <li><strong>telegram-desktop (Oficial)</strong> <code>telegram-desktop</code><br>Cliente Telegram.</li>
+             
+              <li class="category">Mídia & Gráficos</li>
+               <li><strong>mpv (Oficial)</strong> <code>mpv</code><br>Player de vídeo minimalista e poderoso. Ótimo com Hyprland. Config: <code>~/.config/mpv/mpv.conf</code>.</li>
+             <li><strong>vlc (Oficial)</strong> <code>vlc</code><br>Player de vídeo robusto, toca quase tudo.</li>
+              <li><strong>gimp (Oficial)</strong> <code>gimp</code><br>Editor de imagens raster (alternativa ao Photoshop).</li>
+               <li><strong>inkscape (Oficial)</strong> <code>inkscape</code><br>Editor de gráficos vetoriais (alternativa ao Illustrator).</li>
+               <li><strong>krita (Oficial)</strong> <code>krita</code><br>Software de pintura digital e animação 2D.</li>
+               <li><strong>blender (Oficial)</strong> <code>blender</code><br>Software de modelagem, animação e renderização 3D.</li>
+                <li><strong>spotify-launcher (Oficial)</strong> <code>spotify-launcher</code><br>Lançador para o Spotify que aplica flags Wayland. (Requer o pacote <code>spotify</code> do AUR também: <code>yay -S spotify</code>). Config: <code>~/.config/spotify-launcher/spotify-launcher.conf</code>.</li>
+                <li><strong>pavucontrol (Oficial)</strong> <code>pavucontrol</code><br>Já instalado. Mixer de áudio gráfico para PulseAudio/PipeWire-Pulse.</li>
 
-        <!-- Subseção Pacman -->
-        <h4 class="text-lg font-semibold mt-6 mb-3 text-gray-300"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-terminal mr-2"></i>
-            Comandos Essenciais do Pacman e Yay
-        </h4>
-        <ul class="list-none space-y-4 text-lg">
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <ul class="list-disc pl-5 mt-2 text-sm space-y-2">
-                    <li><strong>Atualizar Sistema (Oficial + AUR):</strong> <code>yay -Syu</code></li>
-                    <li><strong>Instalar Pacote (Oficial):</strong> <code>sudo pacman -S nome-do-pacote</code></li>
-                    <li><strong>Instalar Pacote (AUR):</strong> <code>yay -S nome-do-pacote</code></li>
-                    <li><strong>Remover Pacote (e dependências):</strong> <code>sudo pacman -Rns nome-do-pacote</code></li>
-                    <li><strong>Pesquisar Pacote (Oficial + AUR):</strong> <code>yay -Ss palavra-chave</code></li>
-                    <li><strong>Listar Pacotes Instalados:</strong> <code>pacman -Qe</code></li>
-                    <li><strong>Limpar Cache (liberar espaço):</strong> <code>sudo pacman -Scc</code></li>
+              <li class="category">Utilitários de UI & Sistema</li>
+              <li><strong>thunar (Oficial)</strong> <code>thunar</code><br>Já instalado. Gerenciador de arquivos leve. Para miniaturas, instale <code>tumbler</code> e <code>ffmpegthumbnailer</code>.</li>
+               <li><strong>nautilus (Oficial)</strong> <code>nautilus</code><br>Gerenciador de arquivos do GNOME (mais pesado, mais recursos).</li>
+                <li><strong>dolphin (Oficial)</strong> <code>dolphin</code><br>Gerenciador de arquivos do KDE (mais pesado, mais recursos).</li>
+                 <li><strong>lxappearance (Oficial)</strong> <code>lxappearance</code><br>Ferramenta gráfica para definir temas GTK, ícones e cursores.</li>
+                  <li><strong>nwg-look (AUR)</strong> <code>nwg-look</code><br>Alternativa moderna ao lxappearance, com bom suporte a Wayland.</li>
+                 <li><strong>qt5ct & qt6ct (Oficial)</strong> <code>qt5ct qt6ct</code><br>Ferramentas para configurar temas Qt5 e Qt6. Exige definir <code>QT_QPA_PLATFORMTHEME=qt5ct</code> (ou qt6ct) no <code>environment.conf</code>.</li>
+                  <li><strong>kvantum (Oficial)</strong> <code>kvantum</code><br>Motor de temas para Qt, permite temas mais avançados (como blur). Use com qt5ct/qt6ct.</li>
+                 <li><strong>btop (Oficial)</strong> <code>btop</code><br>Monitor de sistema TUI moderno e bonito (alternativa ao htop).</li>
+                 <li><strong>network-manager-applet (Oficial)</strong> <code>network-manager-applet</code><br>Ícone de rede para a bandeja do sistema (tray). Adicione <code>exec-once = nm-applet --indicator</code> ao <code>startup.conf</code>.</li>
+                  <li><strong>blueman (Oficial)</strong> <code>bluez bluez-utils blueman</code><br>Gerenciador gráfico de Bluetooth. Adicione <code>exec-once = blueman-applet</code> ao <code>startup.conf</code>. Requer serviço bluetooth habilitado.</li>
+        </ul>
+
+        <!-- NOVA SEÇÃO: MAIS DICAS HYPRLAND -->
+         <h2><i class="fas fa-lightbulb"></i>Mais Dicas para Dominar o Hyprland</h2>
+        <ul>
+            <li><strong>Organize sua Config:</strong> Use <code>source=</code> no <code>hyprland.conf</code> para separar binds, regras, startup, etc., em arquivos diferentes (ex: <code>~/.config/hypr/binds.conf</code>). Isso facilita a manutenção.</li>
+            <li><strong>Variáveis:</strong> Defina variáveis no início do seu <code>hyprland.conf</code> para reutilizar valores (ex: <code>$terminal = kitty</code>, depois use <code>bind = $mod, RETURN, exec, $terminal</code>).</li>
+            <li><strong>Regras de Janela (Window Rules):</strong> Use <code>hyprctl clients</code> no terminal para descobrir a <code>class</code> e <code>title</code> de uma janela e criar regras específicas para ela (flutuar, mover para workspace, etc.) em <code>windowrules.conf</code>.</li>
+            <li><strong><code>hyprctl</code>:</strong> Aprenda a usar o comando <code>hyprctl</code> no terminal para interagir com o Hyprland (mudar configurações, obter informações, etc.) sem precisar editar o arquivo. Exemplos: <code>hyprctl reload</code>, <code>hyprctl monitors</code>, <code>hyprctl dispatch killactive</code>.</li>
+            <li><strong>Logs:</strong> Se algo der errado, verifique os logs do Hyprland com <code>journalctl --user -xe _COMM=Hyprland</code>.</li>
+             <li><strong>Recarregar Config:</strong> Após editar seus arquivos <code>.conf</code>, use o atalho <code>Super + Shift + R</code> (se definido) ou <code>hyprctl reload</code> no terminal para aplicar as mudanças sem reiniciar o Hyprland.</li>
+             <li><strong>Backup (Dotfiles):</strong> Use <code>git</code> para versionar e fazer backup de seus arquivos de configuração (<code>~/.config/hypr</code>, <code>~/.config/kitty</code>, etc.) em um repositório (ex: GitHub, GitLab). Isso é essencial!</li>
+        </ul>
+        
+        <!-- NOVA SEÇÃO: SOLUÇÃO DE PROBLEMAS -->
+        <h2><i class="fas fa-exclamation-circle"></i>Solução de Problemas Comuns</h2>
+        
+         <div class="alert danger">
+            <i class="fas fa-ambulance"></i>
+            <div>
+                <strong>Pendrive Não Deu Boot?</strong>
+                <ul>
+                    <li>Verifique se a BIOS/UEFI do computador está configurada para dar boot via USB e em modo UEFI (não Legacy/CSM).</li>
+                    <li>Certifique-se de que o Bootloader (systemd-boot) foi instalado corretamente pelo <code>archinstall</code>.</li>
+                    <li>Tente em outra porta USB ou em outro computador para isolar o problema.</li>
                 </ul>
-            </li>
-        </ul>
+            </div>
+        </div>
+        
+         <div class="alert danger">
+            <i class="fas fa-wifi-slash"></i>
+            <div>
+                <strong>Wi-Fi Não Funcionou Após Reiniciar?</strong>
+                 <ul>
+                    <li>Verifique o status do NetworkManager: <code>systemctl status NetworkManager</code>. Ele deve estar "active (running)".</li>
+                    <li>Se não estiver ativo, tente iniciar: <code>sudo systemctl start NetworkManager</code> e habilitar para iniciar no boot: <code>sudo systemctl enable NetworkManager</code>.</li>
+                    <li>Use <code>nmcli device wifi list</code> para ver se as redes aparecem. Se não, pode ser um problema de driver (verifique <code>lspci -k</code>).</li>
+                </ul>
+            </div>
+        </div>
+        
+         <div class="alert danger">
+            <i class="fas fa-undo"></i>
+            <div>
+                <strong>Esqueci de Rodar <code>mkinitcpio -P</code> (ou removi <code>autodetect</code> errado)?</strong>
+                 <ul>
+                    <li>Dê boot novamente com o <strong>Pendrive Instalador (ISO)</strong>.</li>
+                    <li>Conecte-se à internet (<code>iwctl</code>).</li>
+                    <li>Monte suas partições do <strong>Pendrive/SSD Destino</strong>. Exemplo (<strong>AJUSTE OS NOMES /dev/sdbX CONFORME SEU CASO!</strong> Use <code>lsblk</code> para verificar):
+                        <pre><code class="language-bash"># Exemplo para BTRFS com subvolumes padrão do archinstall
+mount /dev/sdb2 /mnt 
+mount -o subvol=@home /dev/sdb2 /mnt/home
+mount -o subvol=@log /dev/sdb2 /mnt/var/log 
+# ... monte outros subvolumes se existirem (@var, etc)
+mount /dev/sdb1 /mnt/boot # Partição EFI</code></pre>
+                    </li>
+                     <li>Entre no sistema com <code>arch-chroot /mnt</code>.</li>
+                     <li>Edite o <code>/etc/mkinitcpio.conf</code> (remova <code>autodetect</code> da linha <code>HOOKS</code>).</li>
+                      <li>Execute <code>mkinitcpio -P</code>.</li>
+                      <li>Saia com <code>exit</code> e reinicie com <code>reboot</code> (removendo a ISO).</li>
+                </ul>
+            </div>
+        </div>
 
-        <!-- Subseção 30 Programas -->
-        <h4 class="text-lg font-semibold mt-6 mb-3 text-gray-300"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-box mr-2"></i>
-            Lista de 30 Programas Úteis
-        </h4>
-        <ul class="list-none space-y-4 text-lg">
-            <!-- Terminais e Editores -->
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1">Terminais e Editores</h4>
-                <ol class="list-decimal pl-5 mt-2 text-sm space-y-2">
-                    <li><strong><code>kitty</code></strong> (Terminal): <code>sudo pacman -S kitty</code>. <br><strong>Dica:</strong> Já instalado. Configure em <code>~/.config/kitty/kitty.conf</code>.</li>
-                    <li><strong><code>micro</code></strong> (Editor de Texto): <code>sudo pacman -S micro</code>. <br><strong>Dica:</strong> Já instalado. Intuitivo (<code>Ctrl+S</code> Salva, <code>Ctrl+Q</code> Sai).</li>
-                    <li><strong><code>neovim</code></strong> (Editor de Texto Avançado): <code>sudo pacman -S neovim</code>. <br><strong>Dica:</strong> Uma alternativa poderosa ao micro/vim. Requer configuração em <code>~/.config/nvim/init.lua</code>.</li>
-                    <li><strong><code>code</code></strong> (VSCode): <code>yay -S visual-studio-code-bin</code>. <br><strong>Dica:</strong> A versão do AUR (<code>-bin</code>) é recomendada. Para Wayland, crie <code>~/.config/electron-flags.conf</code> e adicione <code>--ozone-platform-hint=auto</code>.</li>
-                </ol>
-            </li>
-            <!-- Produtividade e Web -->
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1">Produtividade e Web</h4>
-                <ol class="list-decimal pl-5 mt-2 text-sm space-y-2" start="5">
-                    <li><strong><code>firefox</code></strong> (Navegador): <code>sudo pacman -S firefox</code>. <br><strong>Dica:</strong> Já instalado. Para forçar Wayland: <code>export MOZ_ENABLE_WAYLAND=1</code> (adicione em <code>~/.bash_profile</code>).</li>
-                    <li><strong><code>thunar</code></strong> (Gerenciador de Arquivos): <code>sudo pacman -S thunar</code>. <br><strong>Dica:</strong> Já instalado. Para adicionar "abrir terminal aqui", instale <code>thunar-volman</code>.</li>
-                    <li><strong><code>zathura</code></strong> (Leitor de PDF): <code>sudo pacman -S zathura zathura-pdf-mupdf</code>. <br><strong>Dica:</strong> Leve e controlado por vim-keys.</li>
-                    <li><strong><code>evince</code></strong> (Leitor de PDF GTK): <code>sudo pacman -S evince</code>. <br><strong>Dica:</strong> Alternativa mais tradicional ao Zathura, com interface gráfica.</li>
-                    <li><strong><code>obsidian</code></strong> (Notas): <code>yay -S obsidian</code>. <br><strong>Dica:</strong> Excelente para notas em Markdown. Também usa a dica do <code>electron-flags.conf</code>.</li>
-                </ol>
-            </li>
-            <!-- Gráficos e Mídia -->
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1">Gráficos e Mídia</h4>
-                <ol class="list-decimal pl-5 mt-2 text-sm space-y-2" start="10">
-                    <li><strong><code>swaybg</code></strong> (Papel de Parede): <code>sudo pacman -S swaybg</code>. <br><strong>Dica:</strong> Já instalado. Use no <code>hyprland.conf</code>: <code>exec-once = swaybg -i /caminho/para/imagem.png</code>.</li>
-                    <li><strong><code>gimp</code></strong> (Editor de Imagem): <code>sudo pacman -S gimp</code>. <br><strong>Dica:</strong> O "Photoshop" do Linux.</li>
-                    <li><strong><code>krita</code></strong> (Pintura Digital): <code>sudo pacman -S krita</code>. <br><strong>Dica:</strong> Focado em desenho e pintura.</li>
-                    <li><strong><code>inkscape</code></strong> (Vetor): <code>sudo pacman -S inkscape</code>. <br><strong>Dica:</strong> O "Illustrator" do Linux.</li>
-                    <li><strong><code>mpv</code></strong> (Player de Vídeo): <code>sudo pacman -S mpv</code>. <br><strong>Dica:</strong> Minimalista e poderoso. Funciona perfeitamente em Wayland.</li>
-                    <li><strong><code>vlc</code></strong> (Player de Vídeo): <code>sudo pacman -S vlc</code>. <br><strong>Dica:</strong> Player "faz-tudo", mas o <code>mpv</code> é mais leve.</li>
-                    <li><strong><code>obs-studio</code></strong> (Gravação): <code>sudo pacman -S obs-studio</code>. <br><strong>Dica:</strong> Essencial para gravar a tela. Funciona com o portal <code>xdg-desktop-portal-hyprland</code>.</li>
-                </ol>
-            </li>
-            <!-- Customização e UI -->
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1">Customização e UI</h4>
-                <ol class="list-decimal pl-5 mt-2 text-sm space-y-2" start="17">
-                    <li><strong><code>wofi</code></strong> (Lançador): <code>sudo pacman -S wofi</code>. <br><strong>Dica:</strong> Já instalado. Atalho <code>Super + D</code> já configurado.</li>
-                    <li><strong><code>waybar</code></strong> (Barra de Status): <code>sudo pacman -S waybar</code>. <br><strong>Dica:</strong> Já instalada. Configure em <code>~/.config/waybar/</code>.</li>
-                    <li><strong><code>mako</code></strong> (Notificações): <code>sudo pacman -S mako</code>. <br><strong>Dica:</strong> Já instalado. Configure em <code>~/.config/mako/config</code>.</li>
-                    <li><strong><code>swaylock</code></strong> (Bloqueio de Tela): <code>sudo pacman -S swaylock</code>. <br><strong>Dica:</strong> Já instalado. Atalho <code>Super + L</code> já configurado por nós.</li>
-                    <li><strong><code>nwg-look</code></strong> (Temas GTK): <code>yay -S nwg-look</code>. <br><strong>Dica:</strong> Para aplicar temas GTK e ícones em apps como <code>thunar</code>.</li>
-                    <li><strong><code>qt6ct</code></strong> (Temas Qt): <code>sudo pacman -S qt6ct</code>. <br><strong>Dica:</strong> Para aplicar temas em apps Qt6 (como <code>pavucontrol-qt</code>, se usar).</li>
-                    <li><strong><code>papirus-icon-theme</code></strong> (Ícones): <code>sudo pacman -S papirus-icon-theme</code>. <br><strong>Dica:</strong> Pacote de ícones popular. Ative com <code>nwg-look</code>.</li>
-                    <li><strong><code>noto-fonts-emoji</code></strong> (Emojis): <code>sudo pacman -S noto-fonts-emoji</code>. <br><strong>Dica:</strong> Essencial para ver emojis coloridos no terminal e navegador.</li>
-                </ol>
-            </li>
-            <!-- Utilitários de Sistema -->
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1">Utilitários de Sistema</h4>
-                <ol class="list-decimal pl-5 mt-2 text-sm space-y-2" start="25">
-            </li>
-            <li class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-cloud-arrow-up mr-2 text-blue-500"></i>Faça Backup de seus "Dotfiles"</h4>
-                <p class="text-sm leading-relaxed">Seus arquivos de configuração (em <code>~/.config/</code>) são chamados de "dotfiles". Use <code>git</code> para salvá-los no GitHub ou GitLab. Se seu pendrive falhar, você não perde sua customização! <br><strong>Dica:</strong> Pesquise sobre "git bare repository" ou ferramentas como <code>stow</code> para gerenciar dotfiles.</p>
-            </li>
-            <li class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-ruler mr-2 text-blue-500"></i>Regras de Janela (Window Rules)</h4>
-                <p class="text-sm leading-relaxed">Controle como as janelas abrem. Use <code>hyprctl clients</code> para achar o "class" de um app. <br><strong>Exemplo (no <code>.conf</code>):</strong> <code>windowrule = float, thunar</code> (sempre flutua o Thunar), <code>windowrule = workspace 2, firefox</code> (sempre abre o Firefox no workspace 2).</p>
-            </li>
-            <li class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-terminal mr-2 text-blue-500"></i><code>hyprctl</code>: O Controle Remoto</h4>
-                <p class="text-sm leading-relaxed"><code>hyprctl</code> é um comando para interagir com o Hyprland. Use <code>hyprctl clients</code> para ver janelas, ou <code>hyprctl dispatch exec kitty</code> para testar um comando.</p>
-            </li>
-            <li class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-triangle-exclamation mr-2 text-blue-500"></i>Monitore Erros em Tempo Real</h4>
-                <p class="text-sm leading-relaxed">Se algo quebrar, abra um terminal e rode <code>tail -f /tmp/hypr/$HYPRLAND_INSTANCE_SIGNATURE/hyprland.log</code>. Você verá os erros da sua configuração ao vivo.</p>
-
-            </li>
-            <li class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-arrows-rotate mr-2 text-blue-500"></i>Recarregar a Configuração</h4>
-                </ol>
-            </li>
-        </ul>
-
-        <!-- NOVA SEÇÃO: Dicas Hyprland -->
-        <h2 class="text-2xl font-semibold mt-10 mb-6 text-gray-200 border-t pt-6 border-gray-600"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-lightbulb-on mr-3 text-gray-500"></i>
-            Mais Dicas para Dominar o Hyprland
-        </h2>
-
-        <ul class="list-none space-y-4 text-lg">
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-code-branch mr-2 text-blue-500"></i>Organize seu Config com <code>source</code></h4>
-                <p class="text-sm leading-relaxed">Já fizemos isso! Manter arquivos separados (<code>startup.conf</code>, <code>binds.conf</code>, <code>windowrules.conf</code>) e chamá-los com <code>source = ...</code> no seu <code>hyprland.conf</code> principal é a melhor forma de organização.</p>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-cloud-arrow-up mr-2 text-blue-500"></i>Faça Backup de seus "Dotfiles"</h4>
-                <p class="text-sm leading-relaxed">Seus arquivos de configuração (em <code>~/.config/</code>) são chamados de "dotfiles". Use <code>git</code> para salvá-los no GitHub ou GitLab. Se seu pendrive falhar, você não perde sua customização! <br><strong>Dica:</strong> Pesquise sobre "git bare repository" ou ferramentas como <code>stow</code> para gerenciar dotfiles.</p>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-ruler mr-2 text-blue-500"></i>Regras de Janela (Window Rules)</h4>
-                <p class="text-sm leading-relaxed">Controle como as janelas abrem. Use <code>hyprctl clients</code> para achar o "class" de um app. <br><strong>Exemplo (no <code>.conf</code>):</strong> <code>windowrule = float, thunar</code> (sempre flutua o Thunar), <code>windowrule = workspace 2, firefox</code> (sempre abre o Firefox no workspace 2).</p>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-terminal mr-2 text-blue-500"></i><code>hyprctl</code>: O Controle Remoto</h4>
-                <p class="text-sm leading-relaxed"><code>hyprctl</code> é um comando para interagir com o Hyprland. Use <code>hyprctl clients</code> para ver janelas, ou <code>hyprctl dispatch exec kitty</code> para testar um comando.</p>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-triangle-exclamation mr-2 text-blue-500"></i>Monitore Erros em Tempo Real</h4>
-                <p class="text-sm leading-relaxed">Se algo quebrar, abra um terminal e rode <code>tail -f /tmp/hypr/$HYPRLAND_INSTANCE_SIGNATURE/hyprland.log</code>. Você verá os erros da sua configuração ao vivo.</p>
-
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-arrows-rotate mr-2 text-blue-500"></i>Recarregar a Configuração</h4>
-                <p class="text-sm leading-relaxed">Após salvar seu <code>hyprland.conf</code> (ou qualquer arquivo que ele "lê"), você não precisa reiniciar. Adicione um atalho em <code>binds.conf</code>: <code>bind = $mod, R, exec, hyprctl reload</code>.</p>
-            </li>
-        </ul>
-
-        <!-- SEÇÃO SOLUÇÃO DE PROBLEMAS (EXISTENTE) -->
-        <h2 class="text-2xl font-semibold mt-10 mb-6 text-gray-200 border-t pt-6 border-gray-600"> <!-- Cor atualizada -->
-            <i class="fa-solid fa-circle-question mr-3 text-gray-500"></i>
-            Solução de Problemas Comuns
-        </h2>
-
-        <ul class="list-none space-y-4 text-lg">
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-power-off mr-2 text-red-500"></i>O pendrive não inicializa (não dá boot)</h4>
-                <p class="text-sm leading-relaxed">Isso geralmente é um problema na BIOS. Reinicie o PC, entre na BIOS/UEFI (pressionando F2, Del, F12 ou F10) e verifique duas coisas: <strong>1.</strong> O "Secure Boot" (Inicialização Segura) está <strong>Desativado</strong>. <strong>2.</strong> O modo de boot está em <strong>UEFI</strong> (e não "Legacy" ou "CSM").</p>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-wifi-slash mr-2 text-yellow-500"></i>O WiFi não funciona após reiniciar (<code>nmcli</code> falha)</h4>
-                <p class="text-sm leading-relaxed">Verifique se o serviço do NetworkManager está rodando. Rode o comando: <code>sudo systemctl status NetworkManager</code>. Se ele não estiver "active (running)", inicie-o com <code>sudo systemctl start NetworkManager</code> e ative-o para o próximo boot com <code>sudo systemctl enable NetworkManager</code>.</p>
-            </li>
-            <li class="p-4 bg-gray-700/50 rounded-lg"> <!-- Cor atualizada -->
-                <h4 class="font-semibold text-base mb-1"><i class="fa-solid fa-file-circle-exclamation mr-2 text-blue-500"></i>Esqueci de rodar o <code>mkinitcpio -P</code>!</h4>
-                <p class="text-sm leading-relaxed">Calma! Dê boot com o <strong>pendrive da ISO</strong> do Arch novamente. Conecte-se à internet (<code>iwctl</code>). Agora precisamos "entrar" no seu sistema instalado.
-                <br>1. Rode <code>lsblk</code> para achar seu pendrive (ex: <code>/dev/sdb2</code>).
-                <br>2. Monte-o: <code>sudo mount /dev/sdb2 /mnt</code>
-                <br>3. Entre no sistema: <code>sudo arch-chroot /mnt</code>
-                <br>4. Agora você está dentro! Rode os comandos que faltaram: <code>sed -i 's/ autodetect//' /etc/mkinitcpio.conf</code> e depois <code>mkinitcpio -P</code>.
-                <br>5. Saia com <code>exit</code> e reinicie com <code>reboot</code>.
-                </p>
-            </li>
-        </ul>
 
     </div>
 
-    <!-- SCRIPT PARA BOTÃO COPIAR ADICIONADO -->
     <script>
-        document.querySelectorAll('.copy-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const targetId = button.dataset.clipboardTarget;
-                const targetElement = document.querySelector(targetId);
-                let textToCopy = targetElement.innerText;
-
-                // Remove os comentários para copiar apenas os comandos
-                textToCopy = textToCopy.split('\n')
-                    .filter(line => !line.trim().startsWith('#')) // Remove linhas de comentário
-                    .filter(line => line.trim().length > 0) // Remove linhas vazias
-                    .join('\n');
-
-                try {
-                    // Tenta usar a API de Clipboard (moderna)
-                    navigator.clipboard.writeText(textToCopy).then(() => {
-                        const originalIcon = button.innerHTML;
-                        button.innerHTML = '<i class="fa-solid fa-check text-green-500"></i>';
-                        setTimeout(() => {
-                            button.innerHTML = originalIcon;
-                        }, 1500);
-                    }).catch(err => {
-                        // Fallback para document.execCommand (para iframes/http)
-                        fallbackCopyTextToClipboard(textToCopy, button);
-                    });
-                } catch (err) {
-                    // Fallback para document.execCommand
-                    fallbackCopyTextToClipboard(textToCopy, button);
-                }
-            });
-        });
-
-        function fallbackCopyTextToClipboard(text, button) {
+        function copyCode(button) {
+            const pre = button.parentElement;
+            const code = pre.querySelector('code');
             const textArea = document.createElement('textarea');
-            textArea.value = text;
-            
-            // Evita rolar a página
-            textArea.style.top = "0";
-            textArea.style.left = "0";
-            textArea.style.position = "fixed";
-
+            textArea.value = code.textContent;
             document.body.appendChild(textArea);
-            textArea.focus();
             textArea.select();
-
             try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    const originalIcon = button.innerHTML;
-                    button.innerHTML = '<i class="fa-solid fa-check text-green-500"></i>';
-                    setTimeout(() => {
-                        button.innerHTML = originalIcon;
-                    }, 1500);
-                }
+                document.execCommand('copy'); // Use execCommand como fallback
+                button.innerHTML = '<i class="fas fa-check"></i>Copiado!';
+                button.style.backgroundColor = 'rgba(100, 200, 100, 0.3)'; // Verde claro
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i>Copiar';
+                     button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
             } catch (err) {
-                // Erro ao copiar
+                console.error('Falha ao copiar texto: ', err);
+                 button.innerHTML = '<i class="fas fa-times"></i>Falha!';
+                 button.style.backgroundColor = 'rgba(200, 100, 100, 0.3)'; // Vermelho claro
+                 setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i>Copiar';
+                     button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 3000);
             }
-
             document.body.removeChild(textArea);
         }
+        
+        // Font Awesome Kit (substitua pelo seu se tiver um)
+         const faScript = document.createElement('script');
+         faScript.src = 'https://kit.fontawesome.com/YOUR_KIT_ID.js'; // Idealmente, use seu kit
+         faScript.crossOrigin = 'anonymous';
+         // Fallback se não tiver kit
+         faScript.onerror = () => {
+             const faLink = document.createElement('link');
+             faLink.rel = 'stylesheet';
+             faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css';
+             document.head.appendChild(faLink);
+         }
+         document.head.appendChild(faScript);
     </script>
-
 </body>
 </html>
-
-
-
-
 
